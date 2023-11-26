@@ -25,12 +25,12 @@ Follow these steps to set up the Flet Book Reader App locally:
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/your-username/flet-book-reader.git
+   git clone https://github.com/your-username/flet-reader.git
    ```
 
 2. **Navigate to the Project Directory:**
    ```bash
-   cd flet-book-reader
+   cd flet-reader
    ```
 
 3. **Create a Virtual Environment:**
@@ -53,14 +53,9 @@ Follow these steps to set up the Flet Book Reader App locally:
    pip install -r requirements.txt
    ```
 
-6. **Run Migrations:**
-   ```bash
-   python manage.py migrate
-   ```
-
 7. **Start the Development Server:**
    ```bash
-   python manage.py runserver
+   flet run 
    ```
 
 Visit [http://localhost:8000](http://localhost:8000) in your browser to access the Flet Book Reader App.

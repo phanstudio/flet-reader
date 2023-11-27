@@ -88,6 +88,6 @@ If you would like to contribute to the development of this project, please follo
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE). Feel free to use, modify, and distribute the code for your own projects.
+This project is licensed under the [Apache-2.0 license](LICENSE). Feel free to use, modify, and distribute the code for your own projects.
 
 Happy Reading! 📚

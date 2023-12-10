@@ -15,8 +15,8 @@ Welcome to the Flet Book Reader App! This application is built using Flet, a Pyt
 https://youtu.be/F_QveQ80s6I?si=WtHZYcrd9Lujm2nI
 
 
-[![Now in Android: 55]          // Title
-(https://i.ytimg.com/vi/Hc79sDi3f0U/maxresdefault.jpg)] // Thumbnail
+[![Now in Android: 55]
+(https://i.ytimg.com/vi/Hc79sDi3f0U/maxresdefault.jpg)]
 (https://www.youtube.com/watch?v=F_QveQ80s6I "Now in Android: 55")
 
 ### images

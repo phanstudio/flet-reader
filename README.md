@@ -12,7 +12,7 @@ Welcome to the Flet Book Reader App! This application is built using Flet, a Pyt
 6. [License](#license)
 
 ## Demo
-https://youtu.be/F_QveQ80s6I?si=WtHZYcrd9Lujm2nI
+[youtube](https://youtu.be/F_QveQ80s6I?si=WtHZYcrd9Lujm2nI)
 
 ### images
 ![image](https://github.com/phanstudio/flet-reader/assets/85735876/5feb5007-9c4d-4e18-8cb4-2e680f8573a7)

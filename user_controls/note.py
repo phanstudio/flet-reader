@@ -4,26 +4,35 @@ from flet import (Text,ControlEvent, TextButton, Container, UserControl, Row, Co
 from Utility import GOLD, BOLD
 import flet as ft
 
-
-
-
-class Note(UserControl):
-    def main_container(self):
+class Note(ft.Container):
+    def __init__(self):
+        super().__init__()
         colors = GOLD
-        library_text: TextButton = TextButton(content= Row([
-                                          Text(value= 'My Notes', color=colors), 
-                                          ft.Icon(ft.icons.CHEVRON_RIGHT, size= 30,
-                                                  color=colors)],
-                                          vertical_alignment= CrossAxisAlignment.CENTER),
-                                          on_click=lambda _: self.page.go('/note'))
+
+        library_text: TextButton = TextButton(
+            content= Row(
+                controls= [
+                    Text(
+                        value= 'My Notes',
+                        color=colors
+                    ), 
+                    ft.Icon(
+                        ft.icons.CHEVRON_RIGHT, 
+                        size= 30,
+                        color=colors
+                    )
+                ],
+                alignment= CrossAxisAlignment.CENTER
+            ), 
+            on_click= lambda _: self.page.go('/note')
+        )
         
-        return Row([
+        self.content = Row(
+            controls=[
                 library_text,
-            ], alignment= MainAxisAlignment.START)
-        
-    
-    def build(self) -> Row:
-        return self.main_container()
+            ], 
+            alignment= MainAxisAlignment.START,
+        )
 
 class Note_frame(UserControl):
     def __init__(self, titl= 'queen of hearts', content= 'Love', ids= 0):

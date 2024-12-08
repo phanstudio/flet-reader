@@ -1,8 +1,8 @@
 
-from flet import (Container, UserControl, MainAxisAlignment, colors, Row, margin)
+from flet import (Container, MainAxisAlignment, colors, Row, margin)
 
 
-class readbar(UserControl): #change to progress bar
+class readbar(Container): #change to progress bar
     def __init__(self, fgcolor:str = 'amber', 
                  height: int = 4, start: int = 60, width: int = 200,
                  radius: int = 20, align = 'right', tight = False, tp= 'c', lp = 0.16):

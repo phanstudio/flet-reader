@@ -3,18 +3,90 @@ from textwrap import TextWrapper, shorten
 from random import choice, randrange
 import pytweening as pytw
 import flet as ft
+import ast
 import shutil
 from flet import Page as pG
-from flet import (ElevatedButton, Text, IconButton, TextField,
+from flet import (View, ElevatedButton, Text, IconButton, TextField,
                   ControlEvent, margin, Container, UserControl)
-from flet import (Row, Column,
-                  CrossAxisAlignment, MainAxisAlignment)
+from flet import (RouteChangeEvent, ViewPopEvent, Row, Column,
+                  CrossAxisAlignment, MainAxisAlignment, HoverEvent)
 from Utility import *
-from user_controls import (Library_frame, List_Tile, readbar, BookProgressSheet)
+from user_controls import (Library_frame, Library, Note, List_Tile,
+                           Note_frame, Reading, Mordern_navbar, readbar)
 from pages import subpage2, loads
 import flet.canvas as cv
 
-class Page2(UserControl): # library
+
+# why
+
+# views
+
+class Page1(ft.Container):
+    def __init__(self, dt, ndt, page):
+        self.dt = dt
+        self.ndt = ndt
+        self.page = page
+        super().__init__()
+        dts: list = page.client_storage.get_keys('Book')
+        if dts != []:
+            dts.remove('Book.hist')
+        self.dts = []
+        for i in dts:
+            self.dts.append([i[5:]]+page.client_storage.get(i))
+        
+        self.grid2 = self.grids1()
+        notes = load_notes(page)
+        for note in notes:
+            num = note.split('.')[1]
+            note_prop = load_note_prop(page, note)
+            self.grid2.controls.append(
+                Note_frame(note_prop[0], note_prop[1][0], num)#, pg= page)
+            )
+    
+    def grids1(self) -> ft.GridView:
+       return ft.GridView( 
+            height= 180, 
+            runs_count=2, 
+            horizontal= True,
+            child_aspect_ratio= 0.55
+                    )
+    def grids(self) -> ft.ListView:
+       return ft.ListView( 
+            height= 190, 
+            spacing= 10,
+            horizontal= True,
+                    )
+
+    def build(self):
+        grid1 = self.grids()
+        
+        self.defualt1 = Container(Row([ft.Image('/covers/7.png', height= 200)], 
+                            alignment= MainAxisAlignment.CENTER), bgcolor= 
+                            ft.colors.with_opacity(0.1, ft.colors.INVERSE_SURFACE))
+        self.defualt2 = Row([ft.Image('/covers/11.png', height= 250)], 
+                            alignment= MainAxisAlignment.CENTER)
+
+        if len(self.dts) > 0:
+            self.defualt1.visible = False
+        else:
+            grid1.visible = False
+        if len(self.grid2.controls) > 0:
+            self.defualt2.visible = False
+        
+        
+        grid1.controls += [Library_frame(li=i, page= self.page) for i in self.dts]
+
+        return Column([ Reading(), Library(self.page),
+            self.defualt1,
+            grid1,
+            Note(),
+            self.defualt2,
+            self.grid2,
+            
+            # ft.Image('/covers/defualt.png'),
+        ])
+
+class Page2(UserControl):
     def __init__(self, dt, ndt, page):
         self.dt = dt
         self.ndt = ndt
@@ -73,6 +145,94 @@ class Page2(UserControl): # library
             self.grid1,
             margin=margin.only(top= 60)
             )],)
+
+class Page3(Container):
+    def __init__(self, ndt, page:pG):
+        self.ndt = ndt
+        self.page = page
+        super().__init__()
+
+        self.grid2 = self.grids()
+
+        notes = load_notes(page)
+        for note in notes:
+            num = note.split('.')[1]
+            note_prop = load_note_prop(page, note)
+            self.grid2.controls.append(
+                MainNote(tit= note_prop[0], subt=note_prop[1][0], n= num, pg= page)
+            )
+
+        self.opt = self.options()
+        self.defualt = ft.Image('/covers/r2.png')
+
+        if len(notes) > 0:
+            self.defualt.visible = False
+
+        self.content = Column([
+            self.opt,
+            self.defualt,
+            self.grid2,
+            ], expand= True, spacing= 0)
+        self.expand = True
+        self.margin=margin.only(bottom= 60, top= 60) #+30
+
+    def grids(self) -> ft.ListView:
+        return ft.ListView(
+            expand= True,
+            spacing= 0,
+            padding= 0
+        )
+
+    def deltoggle(self, e):
+        for i in self.grid2.controls:
+            if not i.content.controls[0].visible:
+                i.content.controls[0].visible = True
+                self.opt.controls[1].controls[0].visible = True
+            else:
+                i.content.controls[0].visible = False
+                self.opt.controls[1].controls[0].visible = False
+                i.content.controls[0].value = False
+        self.update()
+    
+    def selectall(self, e):
+        for i in self.grid2.controls:
+            i.content.controls[0].visible = True
+            i.content.controls[0].value = (True
+            if not i.content.controls[0].value == True
+            else False)
+            self.opt.controls[1].controls[0].visible = True
+        self.update()
+    
+    def delete(self, e):
+        for i in range(len(self.grid2.controls)-1, -1, -1):
+            i = self.grid2.controls[i]
+            if i.content.controls[0].value == True:
+                self.grid2.controls.remove(i)
+                remove_note(self.page, i.data)
+                
+        self.deltoggle(e)
+        if len(self.grid2.controls) == 0:
+            self.defualt.visible = True
+        self.update()
+
+    def options(self): # add popup
+        pb = ft.PopupMenuButton(
+            items=[
+                ft.PopupMenuItem(text='Delete'),
+                # ft.PopupMenuItem(text="Item 1"),
+                ])
+
+
+        return Row([Container(Text('Notes', size= 25, weight= BOLD), margin=margin.only(left= 20)),
+                    Row([IconButton(ft.icons.DELETE, visible=False, on_click= self.delete),
+                        IconButton(ft.icons.SELECT_ALL, on_click= self.selectall),
+                         IconButton(ft.icons.SEARCH,), 
+                         IconButton(ft.icons.MORE_VERT_ROUNDED, on_click=self.deltoggle),
+                        #  pb
+                         
+                 ]
+                ,alignment= 'end', spacing= 0,
+                )], alignment= MainAxisAlignment.SPACE_BETWEEN)
 
 class format_panel(UserControl):
     def __init__(self, page, sec):
@@ -1377,6 +1537,52 @@ class Editor(Container):
         # self.bar.current.height = 
         self.update()
 
+class MainNote(ft.TextButton):
+    def __init__(self, tit, subt, n=0, m= ['learning'], pg= ''):
+        super().__init__()
+        self.page = pg
+        short = shorten(subt[0], 39, placeholder='..')
+        short_title = shorten(tit, 20, placeholder='..')
+        self.frame = Column([
+                Container(Row(spacing= 5, alignment= MainAxisAlignment.END))
+                ], alignment= MainAxisAlignment.END)
+        
+        # for i in m:
+        #     self.frame.controls[0].content.controls.append(self.tags(i, choice([GOLD,'#6168CA'])))
+
+        self.check = ft.Ref[ft.Checkbox]()
+        
+        self.content= Row([
+            ft.Checkbox(fill_color= {ft.MaterialState.SELECTED:GOLD}, 
+                        # on_change=self.onselect,
+                        visible= False,
+                        ref= self.check),
+        ft.ListTile(
+            title= ft.Text(value= short_title.title(), size= 14, 
+                            weight= BOLD,),
+            subtitle= Row([ft.Text(value= short, size= 10,), self.frame], 
+                          alignment= MainAxisAlignment.SPACE_BETWEEN),
+        ),
+        ], spacing= 0)
+        
+        self.style = ft.ButtonStyle(padding= ft.padding.symmetric(0,0))
+        self.on_click = self.onclick
+        self.data = n
+
+    def tags(self, text, color):
+        color = color[1:]
+        return Container(Text(value=text, color= f'#{color}', size= 8,),
+                         bgcolor= f'#22{color}', padding= 3, border_radius= 3)
+    
+    def onclick(self, e: ControlEvent):
+        if not self.check.current.visible:
+            self.page.go(f'/note/{e.control.data}')
+        else:
+            self.check.current.value = (True
+                if not self.check.current.value
+                else False)
+            self.update()
+
 def checking(troute, page):
     inf = page.client_storage.get(f'Book.{troute.id}')
     ld = [[],[]]
@@ -1388,218 +1594,183 @@ def checking(troute, page):
                     ld = loads(os.path.join(root_path, pat))
     return ld, inf
 
-# def main(page: pG) -> None:
-#     # Meta
-#     if True:
-#         page.title = 'BookReader'
-#         page.theme_mode = 'light'
-#         page.window.width = 360
-#         # page.window_resizable = False
+def main(page: pG) -> None:
+    # Meta
+    if True:
+        page.title = 'BookReader'
+        page.theme_mode = 'light'
+        page.window.width = 360
+        # page.window_resizable = False
 
-#     dpo = quick_note(List_Tile, page)
-#     sub = subpage2(page, dpo)
-#     dpol = sections_pg(List_Tile, page, sub.content) # note
-#     sub.content.nox = dpol
-#     # sub.content.audio1.src = 
-#     # whe src is added is when the song is loaded so and a try catch
+    dpo = quick_note(List_Tile, page)
+    sub = subpage2(page, dpo)
+    dpol = sections_pg(List_Tile, page, sub.content) # note
+    sub.content.nox = dpol
+    # sub.content.audio1.src = 
+    # whe src is added is when the song is loaded so and a try catch
     
-#     def route_change(e: RouteChangeEvent) -> None:
-#         if True:
-#             page.views.clear()
-#             if len(page.overlay) > 0: page.overlay.clear()
-#             troute = ft.TemplateRoute(page.route)
+    def route_change(e: RouteChangeEvent) -> None:
+        if True:
+            page.views.clear()
+            if len(page.overlay) > 0: page.overlay.clear()
+            troute = ft.TemplateRoute(page.route)
 
-#             # test
-#             # page.overlay.append(Column([
-#             #         ElevatedButton('test', on_click= lambda _: change_theme(page)
-#             # )],bottom= 80, alignment= 'end'))
+            # test
+            # page.overlay.append(Column([
+            #         ElevatedButton('test', on_click= lambda _: change_theme(page)
+            # )],bottom= 80, alignment= 'end'))
 
-#             #Home
+            #Home
+            home_page = Page1(dt,ndt,page)
+            page.views.append(
+                View(
+                    route='/',
+                    controls=[home_page],
+                    horizontal_alignment= CrossAxisAlignment.CENTER,
+                    spacing= 26,
+                )
+            )
 
+        if page.route == '/':
+            page.overlay.append(Mordern_navbar(page, 0))
         
-#         if page.route == '/note':
-#             page.overlay.append(Column([Container(Reading(), 
-#                                         padding= 10, margin= margin.only(top= 0)) #30
-#                                         ], alignment= MainAxisAlignment.START))
-#             page.overlay.append(Column([
-#                     IconButton(ft.icons.ADD_CIRCLE_ROUNDED, icon_color= GOLD, icon_size= 60,
-#                                on_click= lambda _: open_note(page)
-#             )],bottom= 70, alignment= 'end', left= page.window_width - 95))
+        if page.route == '/note':
+            note_page = Page3(ndt, page)
+            page.overlay.append(Mordern_navbar(page, 4))
+            page.overlay.append(Column([Container(Reading(), 
+                                        padding= 10, margin= margin.only(top= 0)) #30
+                                        ], alignment= MainAxisAlignment.START))
+            page.overlay.append(Column([
+                    IconButton(ft.icons.ADD_CIRCLE_ROUNDED, icon_color= GOLD, icon_size= 60,
+                               on_click= lambda _: open_note(page)
+            )],bottom= 70, alignment= 'end', left= page.window_width - 95))
+            page.views.append(
+                View(
+                    route='/note',
+                    controls=[note_page],
+                    horizontal_alignment= CrossAxisAlignment.CENTER,
+                    spacing= 26,
+                )
+            )
         
-#         if page.route == '/lib':
-#             v_Audio = sub.content.audio1
-#             page.overlay.append(v_Audio)
-#             lib_page = Page2(dt, ndt, page)
-#             # print(lib_page.grid1.controls)
-#             # page.on_resize = lambda _: p221(lib_page, page)
-#             page.overlay.append(Mordern_navbar(page, 2)) # add a button for adding music/books
-#             page.overlay.append(Column([Container(
-#                 Row([IconButton(ft.icons.CHEVRON_LEFT, 
-#                                 on_click= lambda _: page.go(f'/')),
-#                      Reading(lambda e: play_pause(e, v_Audio)),
-#                 IconButton(ft.icons.MORE_VERT, on_click=
-#                            lambda _:  delete(lib_page)
-#                            ),
-#                 ], expand= True),
-#                 padding= 10, bgcolor= ft.colors.BACKGROUND)
-#                 ], alignment= MainAxisAlignment.START))
-#             page.views.append(
-#                 View(
-#                     route='/lib',
-#                     controls=[lib_page,
-#                     ],
-#                     horizontal_alignment= CrossAxisAlignment.CENTER,
-#                     spacing= 26,
-#                 )
-#             )
+        if page.route == '/lib':
+            v_Audio = sub.content.audio1
+            page.overlay.append(v_Audio)
+            lib_page = Page2(dt, ndt, page)
+            # print(lib_page.grid1.controls)
+            # page.on_resize = lambda _: p221(lib_page, page)
+            page.overlay.append(Mordern_navbar(page, 2)) # add a button for adding music/books
+            page.overlay.append(Column([Container(
+                Row([IconButton(ft.icons.CHEVRON_LEFT, 
+                                on_click= lambda _: page.go(f'/')),
+                     Reading(lambda e: play_pause(e, v_Audio)),
+                IconButton(ft.icons.MORE_VERT, on_click=
+                           lambda _:  delete(lib_page)
+                           ),
+                ], expand= True),
+                padding= 10, bgcolor= ft.colors.BACKGROUND)
+                ], alignment= MainAxisAlignment.START))
+            page.views.append(
+                View(
+                    route='/lib',
+                    controls=[lib_page,
+                    ],
+                    horizontal_alignment= CrossAxisAlignment.CENTER,
+                    spacing= 26,
+                )
+            )
             
-#         if page.route == '/srch':
-#             page.overlay.append(Mordern_navbar(page, 1))
-#             dp = downlod_pg(List_Tile, page, 700)
-#             page.overlay.append(Mordern_navbar(page, 1))
-#             page.overlay.append(dp)
+        if page.route == '/srch':
+            page.overlay.append(Mordern_navbar(page, 1))
+            dp = downlod_pg(List_Tile, page, 700)
+            page.overlay.append(Mordern_navbar(page, 1))
+            page.overlay.append(dp)
             
-#             file_picker = ft.FilePicker()
-#             file_picker.on_result = lambda e, p= file_picker, d= dp, pl= page: on_dialog_result(e, p, d, pl)
-#             page.overlay.append(file_picker)
-#             page.views.append(
-#                 View(
-#                     route='/srch',
-#                     controls=[Page4(file_picker, page, dp)],
-#                     spacing= 26,
-#                 )
-#             )
+            file_picker = ft.FilePicker()
+            file_picker.on_result = lambda e, p= file_picker, d= dp, pl= page: on_dialog_result(e, p, d, pl)
+            page.overlay.append(file_picker)
+            page.views.append(
+                View(
+                    route='/srch',
+                    controls=[Page4(file_picker, page, dp)],
+                    spacing= 26,
+                )
+            )
         
-#         if page.route == '/bmark':
-#             page.overlay.append(Mordern_navbar(page, 3))
-#             v_Audio = sub.content.audio1
-#             page.overlay.append(v_Audio)
-#             page.views.append(
-#                 View(
-#                     route='/bmark',
-#                     controls=[Page5(page, v_Audio)],
-#                     vertical_alignment= MainAxisAlignment.CENTER,
-#                     horizontal_alignment= CrossAxisAlignment.CENTER,
-#                     spacing= 26,
-#                 )
-#             )
+        if page.route == '/bmark':
+            page.overlay.append(Mordern_navbar(page, 3))
+            v_Audio = sub.content.audio1
+            page.overlay.append(v_Audio)
+            page.views.append(
+                View(
+                    route='/bmark',
+                    controls=[Page5(page, v_Audio)],
+                    vertical_alignment= MainAxisAlignment.CENTER,
+                    horizontal_alignment= CrossAxisAlignment.CENTER,
+                    spacing= 26,
+                )
+            )
 
-#         if troute.match('/lib/:id'):
-#             sp3 = sub_page3(page, troute.id)
-#             page.overlay.append(
-#                     ft.ElevatedButton(text='Continue', bgcolor= GOLD, color= 'white', 
-#                                       style= ft.ButtonStyle(shape= ft.RoundedRectangleBorder(radius= 8),
-#                                                             padding= 18,),
-#                                on_click= lambda _: print('open'), bottom= 10, right= 10,
-#             ))
-#             page.views.append(
-#                 View(
-#                     route=f'/lib/{troute.id}',
-#                     controls=[sp3.build()],
-#                     vertical_alignment= MainAxisAlignment.CENTER,
-#                     horizontal_alignment= CrossAxisAlignment.CENTER,
-#                     spacing= 26,
-#                 )
-#             )
+        if troute.match('/lib/:id'):
+            sp3 = sub_page3(page, troute.id)
+            page.overlay.append(
+                    ft.ElevatedButton(text='Continue', bgcolor= GOLD, color= 'white', 
+                                      style= ft.ButtonStyle(shape= ft.RoundedRectangleBorder(radius= 8),
+                                                            padding= 18,),
+                               on_click= lambda _: print('open'), bottom= 10, right= 10,
+            ))
+            page.views.append(
+                View(
+                    route=f'/lib/{troute.id}',
+                    controls=[sp3.build()],
+                    vertical_alignment= MainAxisAlignment.CENTER,
+                    horizontal_alignment= CrossAxisAlignment.CENTER,
+                    spacing= 26,
+                )
+            )
 
-#         if troute.match('/lib/:id/:num'):
-#             page.overlay.append(Column([dpo], alignment=MainAxisAlignment.END)) # animate
-#             page.overlay.append(dpol)
-#             update_current(page, troute.id, troute.num)
-#             ld, inf = checking(troute, page)
-#             sub.content.load(troute.id, troute.num, inf[3], ld,
-#                              src=f'{inf[0]}/parts/{int(troute.num)*5}.mp3')
-#             sub.content.audio1.outside = None
-#             page.overlay.append(sub.content.audio1)
+        if troute.match('/lib/:id/:num'):
+            page.overlay.append(Column([dpo], alignment=MainAxisAlignment.END)) # animate
+            page.overlay.append(dpol)
+            update_current(page, troute.id, troute.num)
+            ld, inf = checking(troute, page)
+            sub.content.load(troute.id, troute.num, inf[3], ld,
+                             src=f'{inf[0]}/parts/{int(troute.num)*5}.mp3')
+            sub.content.audio1.outside = None
+            page.overlay.append(sub.content.audio1)
             
-#             page.views.append(
-#                 View(
-#                     route=f'/lib/{troute.id}/{troute.num}',
-#                     controls=[sub,],
-#                     vertical_alignment= MainAxisAlignment.CENTER,
-#                     horizontal_alignment= CrossAxisAlignment.CENTER,
-#                     spacing= 26,
-#                 )
-#             )
+            page.views.append(
+                View(
+                    route=f'/lib/{troute.id}/{troute.num}',
+                    controls=[sub,],
+                    vertical_alignment= MainAxisAlignment.CENTER,
+                    horizontal_alignment= CrossAxisAlignment.CENTER,
+                    spacing= 26,
+                )
+            )
         
-#         if troute.match('/note/:id'):
-#             v_Audio = sub.content.audio1
-#             sp1 = sub_page1(page, troute.id, v_Audio)
-#             sec = section_overlay(page, sp1, v_Audio)
-#             page.overlay.append(Mordern_navbar(page, 4))
-#             page.overlay.append(format_panel(sp1, sec))
-#             page.overlay.append(v_Audio)
-#             page.overlay.append(sec)
-#             page.views.append(
-#                 View(
-#                     route=f'/note/{troute.id}',
-#                     controls=[
-#                         sp1.build(),
-#                     ],
-#                     spacing= 26,
-#                 )
-#             )
-#         page.update()
-
-#     def view_pop(e: ViewPopEvent) -> None:
-#         page.views.pop()
-#         top_view: View = page.views[-1]
-#         page.go(top_view.route)
-    
-#     page.on_route_change = route_change
-#     page.on_view_pop = view_pop
-#     page.go(page.route)
-
-from view import routes
-# from utility import LoadingView, defualt_theme, AlertControl, overlay
-
-def metadata(page: ft.Page):
-    page.title = "Work"
-    page.theme_mode = 'Light'
-    page.window.width = 320
-
-# def set_theme(page):
-#     save_colors = defualt_theme
-#     if not page.client_storage.get("theme_color"):
-#         page.client_storage.set('theme_color', save_colors)
-#     else:
-#         save_colors = page.client_storage.get("theme_color")
-#     page.theme = ft.Theme(
-#         color_scheme= ft.ColorScheme(
-#             primary= save_colors['accent'],
-#             primary_container= save_colors['container'],
-#             surface= save_colors['background'],
-#             on_surface= save_colors['text'],
-#             on_surface_variant= save_colors['text'],
-#         ),
-#     )
-
-def add_overlays(page):
-    page.overlay.append(ft.SnackBar(ft.Text("love"), duration= 2000))
-    page.overlay.append(BookProgressSheet(700))
-    page.overlay.append(ft.FilePicker())
-
-def main(page: ft.Page): # add security
-    metadata(page)
-    add_overlays(page)
-    # set_theme(page)
-    # overlays = overlay(page)
-    def route_change(e: ft.RouteChangeEvent) -> None:
-        current_view = [i for i in page.views if page.route == i.route]
-        if any(current_view): page.views.remove(current_view[0])
-        if page.route in ['/']: page.views.clear()
-        page.views.append((
-            routes[
-                page.route
-                if page.route in list(routes.keys()) 
-                else "/"
-            ]
-        )())
+        if troute.match('/note/:id'):
+            v_Audio = sub.content.audio1
+            sp1 = sub_page1(page, troute.id, v_Audio)
+            sec = section_overlay(page, sp1, v_Audio)
+            page.overlay.append(Mordern_navbar(page, 4))
+            page.overlay.append(format_panel(sp1, sec))
+            page.overlay.append(v_Audio)
+            page.overlay.append(sec)
+            page.views.append(
+                View(
+                    route=f'/note/{troute.id}',
+                    controls=[
+                        sp1.build(),
+                    ],
+                    spacing= 26,
+                )
+            )
         page.update()
-    
-    def view_pop(e: ft.ViewPopEvent) -> None:
+
+    def view_pop(e: ViewPopEvent) -> None:
         page.views.pop()
-        top_view: ft.View = page.views.pop()
+        top_view: View = page.views[-1]
         page.go(top_view.route)
     
     page.on_route_change = route_change

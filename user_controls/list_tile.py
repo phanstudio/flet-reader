@@ -1,4 +1,8 @@
 import flet as ft
+import os
+import shutil
+from Utility import root_path
+from textwrap import TextWrapper
 
 GOLD = '#B49455'
 
@@ -50,3 +54,104 @@ class List_Tile(ft.IconButton):
             self.ico.current.visible = True
             self.fin = True
             self.update()
+
+class BookProgressSheet(ft.BottomSheet):
+    def __init__(self, height: ft.OptionalNumber = None):
+        self.body = ft.Ref[ft.Column]()
+        super().__init__(
+            show_drag_handle = True,
+            content = ft.Column(
+                ref= self.body,
+                controls=[
+                    ft.ElevatedButton(
+                        "x",
+                        height= 5, 
+                        width= 100, 
+                        on_click= self.onclose,
+                        visible= False,
+                        bgcolor= ft.colors.with_opacity(0.3, ft.colors.INVERSE_SURFACE)
+                    ),
+                    ft.Text('Latest Adds'),
+                    ft.ListView([], expand= True),
+                ], 
+                horizontal_alignment= ft.CrossAxisAlignment.CENTER, 
+                expand=True
+            )
+        )
+
+        self.shadow = ft.BoxShadow(
+            blur_style= ft.ShadowBlurStyle.OUTER, 
+            blur_radius= 4,
+            color= ft.colors.with_opacity(0.2, ft.colors.INVERSE_SURFACE),
+        )
+
+        # self.content = ft.Column(
+        #     ref= self.body,
+        #     controls=[
+        #         ft.ElevatedButton(
+        #             "x",
+        #             height= 5, 
+        #             width= 100, 
+        #             on_click= self.onclose,
+        #             visible= False,
+        #             bgcolor= ft.colors.with_opacity(0.3, ft.colors.INVERSE_SURFACE)
+        #         ),
+        #         ft.Text('Latest Adds'),
+        #         ft.ListView([], expand= True),
+        #     ], 
+        #     horizontal_alignment= ft.CrossAxisAlignment.CENTER, 
+        #     expand=True
+        # )
+
+        self.height = height
+
+    # height
+    @property
+    def height(self) -> ft.OptionalNumber:
+        return self._get_attr("height")
+
+    @height.setter
+    def height(self, value: ft.OptionalNumber):
+        self._set_attr("height", value)
+
+    def clear(self):
+        dts: list = self.page.client_storage.get_keys('Book')
+        dts.remove('Book.hist')
+        self.page.client_storage.set('Book.hist', [])
+        # add clear the path
+       
+        for i in dts:
+            self.page.client_storage.remove(i)
+            shutil.rmtree(os.path.join(root_path,'Books',f'{i.split(".")[-1]}'))
+    
+    def onclose(self, e):
+        # self.visible = False
+        if self.expand == True:
+            self.expand = False
+            self.open = False
+            for  i in self.body.current.controls[1:]:
+                i.visible = False
+        else:
+            self.expand = True
+            self.open = True
+            for  i in self.body.current.controls[1:]:
+                i.visible = True
+        self.update()
+
+    def popup(self, e):
+        self.open()
+        self.page.update()
+
+    def did_mount(self):
+        past_hist:list = self.page.client_storage.get('Book.hist')
+        if past_hist != None:
+            books = self.page.client_storage.get_keys('Book')
+
+            past_hist.reverse()
+            w = TextWrapper(25)
+
+            for i in past_hist:
+                p = 'f' if 'Book.'+i in books else 'd'
+                i = w.fill(i)
+                self.content.controls[2].controls.append(List_Tile(self.page, i, p))
+        return super().did_mount()

@@ -2,39 +2,51 @@ from textwrap import TextWrapper, shorten
 from .Read_bar import readbar
 from flet import Page as pG
 from flet import (Text,ControlEvent, margin, Stack, Icon, icons, colors,
-                  TextButton, Container, UserControl, Row, Column,
+                  TextButton, Container, Row, Column,
                   CrossAxisAlignment, MainAxisAlignment)
 from Utility import GOLD, BOLD, os, root_path
 from shutil import rmtree
 import flet as ft
 
-
-
-class Library(UserControl):
-    def __init__(self, page: pG):
+class Library(ft.Container):
+    def __init__(self):
         super().__init__()
-        self.page = page
-    
-    def main_container(self):
         colors = GOLD
-        library_text: TextButton = TextButton(content= Row([
-                                          Text(value= 'My Library', color=colors), 
-                                          Icon(icons.CHEVRON_RIGHT, size= 30,
-                                                  color=colors)],
-                                          alignment= CrossAxisAlignment.CENTER), 
-                                          on_click= lambda _: self.page.go('/lib'))
-        library_bar: readbar = readbar(width= 130, 
-                                   fgcolor= colors, tight= True,)
+        library_text: TextButton = TextButton(
+            content= Row(
+                controls= [
+                    Text(
+                        value= 'My Library',
+                        color=colors
+                    ), 
+                    Icon(
+                        icons.CHEVRON_RIGHT, 
+                        size= 30,
+                        color=colors
+                    )
+                ],
+                alignment= CrossAxisAlignment.CENTER
+            ), 
+            on_click= lambda _: self.page.go('/lib')
+        )
+        # library_bar: readbar = readbar(width= 130, 
+        #                            fgcolor= colors, tight= True,)
+        library_bar: ft.ProgressBar = ft.ProgressBar(
+            color= colors, 
+            width= 130,
+            value= 0.1,
+            border_radius= 50,
+        )
         
-        return Row([
+        self.content = Row(
+            controls=[
                 library_text,
                 library_bar,
-            ], alignment= MainAxisAlignment.SPACE_BETWEEN)
+            ], 
+            alignment= MainAxisAlignment.SPACE_BETWEEN,
+        )
     
-    def build(self) -> Row:
-        return self.main_container()
-
-class Library_frame(UserControl):  
+class Library_frame(ft.Container):  
     def __init__(self, page:pG, li=[], src= '12', per= 10,
                  pert = None,
                  typ= 'TTS'):
@@ -82,6 +94,13 @@ class Library_frame(UserControl):
             )
         self.frame.on_hover = self.onhover
         self.frame.on_click = self.onclick
+        self.content= Column(
+            controls=[
+                self.frame,
+                # above aserting length ... it
+                #  Text(value= self.text, weight= BOLD)
+            ]
+        ),
 
     def onhover(self, e: ft.HoverEvent):
         if e.data == 'true':
@@ -124,10 +143,3 @@ class Library_frame(UserControl):
             if len(self.pert.grid1.controls) == 0:
                 self.pert.defualt.visible = True
             self.pert.update()
-    
-    def build(self):
-        return Container(Column([self.frame, # above aserting length ... it
-                                #  Text(value= self.text, weight= BOLD)
-                                ]), 
-                                #  border= ft.border.all(2)
-                                 )

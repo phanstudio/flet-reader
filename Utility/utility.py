@@ -69,6 +69,7 @@ def on_dialog_result(e: ft.FilePickerResultEvent, fil:ft.FilePicker, dp: ft.Cont
         old_path = e.files[0].path
         _, tail = os.path.split(old_path)
         name = tail.split('.')[0]
+        print(name)
         path = os.path.join(root_path,'Books', f'{name}')
         ass_path = f'/Books/{name}'
         subtitle = []

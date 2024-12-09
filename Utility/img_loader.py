@@ -1,10 +1,10 @@
 from PIL import Image
 import stagger
 import io, os
+from .constants import ROOTPATH
 
 def loader(path:str, nam):
-    root_path = os.getenv("FLET_ASSETS_PATH")
-    folders = os.path.join(root_path,'covers')
+    folders = os.path.join(ROOTPATH,'covers')
     img = 'defualt'
     try:
         mp3 = stagger.read_tag(path)
@@ -16,6 +16,6 @@ def loader(path:str, nam):
     except:
         defualt_img_path = os.path.join(folders,'defualt.png')
         if not os.path.exists(defualt_img_path):
-            imageFile = Image.open(os.path.join(root_path,'9.png'))
+            imageFile = Image.open(os.path.join(ROOTPATH,'9.png'))
             imageFile.save(defualt_img_path)
     return img+'.png'

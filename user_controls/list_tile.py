@@ -1,15 +1,12 @@
 import flet as ft
 import os
 import shutil
-from Utility import root_path
+from Utility import ROOTPATH, GOLD
 from textwrap import TextWrapper
 
-GOLD = '#B49455'
-
-class List_Tile(ft.IconButton):
-    def __init__(self, pg:ft.Page, txt, prog= 'd'):
+class ListTile(ft.IconButton):
+    def __init__(self, txt, prog= 'd'):
         super().__init__()
-        self.pg= pg
         self.txt = txt
         self.on_click = self.onclick
         self.fin = False
@@ -25,21 +22,23 @@ class List_Tile(ft.IconButton):
         self.ico = ft.Ref[ft.Icon]()
         self.exit = ft.Ref[ft.Icon]()
 
+        self.text_container = ft.Text(txt, size= 12)
+
         self.content= ft.Container(
             ft.Row([
-                ft.Text(txt, size= 12),
+                self.text_container,
                 ft.ProgressBar(width=60, ref= self.prg, visible= vis[0]),
-                ft.Icon(name= ft.icons.DONE, color= GOLD, ref= self.ico, visible= vis[1]),
-                ft.Icon(name= ft.icons.CANCEL, color= GOLD, ref= self.exit, visible= vis[2])
+                ft.Icon(name= ft.Icons.DONE, color= GOLD, ref= self.ico, visible= vis[1]),
+                ft.Icon(name= ft.Icons.CANCEL, color= GOLD, ref= self.exit, visible= vis[2])
             ], alignment= ft.MainAxisAlignment.SPACE_BETWEEN), 
-            bgcolor= ft.colors.with_opacity(0.1, GOLD),
+            bgcolor= ft.Colors.with_opacity(0.1, GOLD),
             border_radius= 60,
             padding= 15,
             expand= True)
     
     def onclick(self, e):
         if self.fin:
-            self.pg.go(f'/lib/{self.txt}')
+            self.page.go(f'/lib/{self.txt}')
     
     def done(self, prog='d'):
         if prog == 'd':
@@ -58,6 +57,7 @@ class List_Tile(ft.IconButton):
 class BookProgressSheet(ft.BottomSheet):
     def __init__(self, height: ft.OptionalNumber = None):
         self.body = ft.Ref[ft.Column]()
+        self.list_body = ft.ListView([], expand= True)
         super().__init__(
             show_drag_handle = True,
             content = ft.Column(
@@ -69,10 +69,10 @@ class BookProgressSheet(ft.BottomSheet):
                         width= 100, 
                         on_click= self.onclose,
                         visible= False,
-                        bgcolor= ft.colors.with_opacity(0.3, ft.colors.INVERSE_SURFACE)
+                        bgcolor= ft.Colors.with_opacity(0.3, ft.Colors.INVERSE_SURFACE)
                     ),
                     ft.Text('Latest Adds'),
-                    ft.ListView([], expand= True),
+                    self.list_body,
                 ], 
                 horizontal_alignment= ft.CrossAxisAlignment.CENTER, 
                 expand=True
@@ -82,27 +82,8 @@ class BookProgressSheet(ft.BottomSheet):
         self.shadow = ft.BoxShadow(
             blur_style= ft.ShadowBlurStyle.OUTER, 
             blur_radius= 4,
-            color= ft.colors.with_opacity(0.2, ft.colors.INVERSE_SURFACE),
+            color= ft.Colors.with_opacity(0.2, ft.Colors.INVERSE_SURFACE),
         )
-
-        # self.content = ft.Column(
-        #     ref= self.body,
-        #     controls=[
-        #         ft.ElevatedButton(
-        #             "x",
-        #             height= 5, 
-        #             width= 100, 
-        #             on_click= self.onclose,
-        #             visible= False,
-        #             bgcolor= ft.colors.with_opacity(0.3, ft.colors.INVERSE_SURFACE)
-        #         ),
-        #         ft.Text('Latest Adds'),
-        #         ft.ListView([], expand= True),
-        #     ], 
-        #     horizontal_alignment= ft.CrossAxisAlignment.CENTER, 
-        #     expand=True
-        # )
-
         self.height = height
 
     # height
@@ -122,7 +103,7 @@ class BookProgressSheet(ft.BottomSheet):
        
         for i in dts:
             self.page.client_storage.remove(i)
-            shutil.rmtree(os.path.join(root_path,'Books',f'{i.split(".")[-1]}'))
+            shutil.rmtree(os.path.join(ROOTPATH,'Books',f'{i.split(".")[-1]}'))
     
     def onclose(self, e):
         # self.visible = False
@@ -138,8 +119,8 @@ class BookProgressSheet(ft.BottomSheet):
                 i.visible = True
         self.update()
 
-    def popup(self, e):
-        self.open()
+    def popup(self):
+        self.page.open(self)
         self.page.update()
 
     def did_mount(self):
@@ -153,5 +134,5 @@ class BookProgressSheet(ft.BottomSheet):
             for i in past_hist:
                 p = 'f' if 'Book.'+i in books else 'd'
                 i = w.fill(i)
-                self.content.controls[2].controls.append(List_Tile(self.page, i, p))
+                self.list_body.controls.append(ListTile(i, p))
         return super().did_mount()

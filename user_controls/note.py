@@ -7,19 +7,19 @@ import flet as ft
 class Note(ft.Container):
     def __init__(self):
         super().__init__()
-        colors = GOLD
+        Colors = GOLD
 
         library_text: TextButton = TextButton(
             content= Row(
                 controls= [
                     Text(
                         value= 'My Notes',
-                        color=colors
+                        color=Colors
                     ), 
                     ft.Icon(
-                        ft.icons.CHEVRON_RIGHT, 
+                        ft.Icons.CHEVRON_RIGHT, 
                         size= 30,
-                        color=colors
+                        color=Colors
                     )
                 ],
                 alignment= CrossAxisAlignment.CENTER
@@ -50,12 +50,12 @@ class Note_frame(UserControl):
                         ], spacing= 2), margin= 10),
                 Container(Row([self.tags('Learning', GOLD), self.tags('writing', '#6168CA'),
                              ], spacing= 5, alignment= MainAxisAlignment.END), margin=5)
-                ], spacing= 5), width= 150, bgcolor= ft.colors.BACKGROUND, border_radius= radius,
+                ], spacing= 5), width= 150, bgcolor= ft.Colors.BACKGROUND, border_radius= radius,
                 shadow= ft.BoxShadow(blur_radius= 5, 
-                                     color= ft.colors.with_opacity(0.05, ft.colors.INVERSE_SURFACE), 
+                                     color= ft.Colors.with_opacity(0.05, ft.Colors.INVERSE_SURFACE), 
                                      offset= ft.Offset(0,7)),
                 ink= True, border= ft.border.all(
-                    color= ft.colors.with_opacity(0.26, ft.colors.INVERSE_SURFACE)),
+                    color= ft.Colors.with_opacity(0.26, ft.Colors.INVERSE_SURFACE)),
             )
         self.frame.on_hover = self.onhover
         self.frame.on_click = self.onclick

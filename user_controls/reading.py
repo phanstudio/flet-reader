@@ -1,5 +1,5 @@
 from flet import (Text, IconButton, Container, Row, Column, ProgressRing,
-                  CrossAxisAlignment, MainAxisAlignment, colors, Stack, padding, icons)
+                  CrossAxisAlignment, MainAxisAlignment, Colors, Stack, padding, Icons)
 from Utility import GOLD, BOLD
 import flet as ft
 
@@ -9,7 +9,7 @@ class Reading(ft.Container): # change
             expand= True, 
             border_radius= 50, 
             padding= padding.symmetric(horizontal=5),
-            bgcolor= colors.with_opacity(0.05, colors.INVERSE_SURFACE),
+            bgcolor= Colors.with_opacity(0.05, Colors.INVERSE_SURFACE),
             ink= True,
         )
         self.onclick = onclick
@@ -40,7 +40,7 @@ class Reading(ft.Container): # change
                                                 width= 40, 
                                                 height= 40, 
                                                 value= 0.4, 
-                                                bgcolor= colors.with_opacity(0.54, colors.INVERSE_SURFACE), 
+                                                bgcolor= Colors.with_opacity(0.54, Colors.INVERSE_SURFACE), 
                                                 stroke_width= 2, 
                                                 color= GOLD,
                                             ),
@@ -67,7 +67,7 @@ class Reading(ft.Container): # change
             margin= 5
             ),
                 IconButton(
-                    icons.PLAY_CIRCLE_FILL_ROUNDED, 
+                    Icons.PLAY_CIRCLE_FILL_ROUNDED, 
                     icon_color= GOLD,
                     on_click= self.onclick
                 )

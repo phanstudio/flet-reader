@@ -1,10 +1,15 @@
 import flet as ft
 
 BOLD = ft.FontWeight.BOLD
-TEXT_COLOR = ft.colors.ON_SURFACE
-ACCENT2_COLOR = ft.colors.PRIMARY 
-BACKGROUND_COLOR = ft.colors.SURFACE 
-CONTAINER_COLOR = ft.colors.PRIMARY_CONTAINER
+TEXT_COLOR = ft.Colors.ON_SURFACE
+ACCENT2_COLOR = ft.Colors.PRIMARY 
+BACKGROUND_COLOR = ft.Colors.SURFACE 
+CONTAINER_COLOR = ft.Colors.PRIMARY_CONTAINER
+ROOTPATH = './assets'#'./_internal/assets'#'./assets'
+
+# make colours constants
+GOLD = '#B49455'
+BOLD = ft.FontWeight.BOLD
 
 defualt_theme = {
     'accent': '#E2746D', 

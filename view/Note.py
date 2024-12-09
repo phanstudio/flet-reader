@@ -78,13 +78,20 @@ class MainNote(ft.TextButton):
             )
             self.update()
 
+# page.overlay.append(Column([Container(Reading(), 
+#                                         padding= 10, margin= margin.only(top= 0)) #30
+#                                         ], alignment= MainAxisAlignment.START))
+
 class NoteView(ft.View):
     def __init__(self) -> None:
         super().__init__(
             route= "/note",
             horizontal_alignment= ft.CrossAxisAlignment.CENTER,
             bgcolor = BACKGROUND_COLOR,
-            navigation_bar= Navbar(4)
+            navigation_bar= Navbar(4),
+            floating_action_button= ft.FloatingActionButton(
+                icon= ft.Icons.ADD_CIRCLE_ROUNDED,
+            ),
         )
 
         self.grid2 = ft.ListView(
@@ -110,10 +117,10 @@ class NoteView(ft.View):
                 ),
                 ft.Row(
                     controls=[
-                        ft.IconButton(ft.icons.DELETE, visible=False, on_click= self.delete),
-                        ft.IconButton(ft.icons.SELECT_ALL, on_click= self.selectall),
-                        ft.IconButton(ft.icons.SEARCH,), 
-                        ft.IconButton(ft.icons.MORE_VERT_ROUNDED, on_click=self.deltoggle),
+                        ft.IconButton(ft.Icons.DELETE, visible=False, on_click= self.delete),
+                        ft.IconButton(ft.Icons.SELECT_ALL, on_click= self.selectall),
+                        ft.IconButton(ft.Icons.SEARCH,), 
+                        ft.IconButton(ft.Icons.MORE_VERT_ROUNDED, on_click=self.deltoggle),
                         #  pb
                     ],
                     alignment= ft.MainAxisAlignment.END, 
@@ -172,5 +179,6 @@ class NoteView(ft.View):
         if len(notes) > 0:
             self.defualt.visible = False
         self.grid2.visible = not self.defualt.visible 
+        self.floating_action_button.on_click= lambda _: open_note(self.page)
         self.update()
         return super().did_mount()

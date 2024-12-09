@@ -3,11 +3,8 @@ from flet import Page as pG
 import uuid, os, time
 from .split_Ter import five_min_splitter, AudioSegment
 from.img_loader import loader
-root_path = os.getenv("FLET_ASSETS_PATH")
-
-# make colours constants
-GOLD = '#B49455'
-BOLD = ft.FontWeight.BOLD
+from .custom_classes import overlay
+from .constants import ROOTPATH, GOLD, BOLD
 
 # Test Data
 dt = [[2, 12,'part 1',20, '03:00', 'Tale of the over powered hero'],
@@ -62,55 +59,6 @@ def open_note(page:pG):
     random_uuid = uuid.uuid4()
     page.go(f'/note/{random_uuid}')
 
-def on_dialog_result(e: ft.FilePickerResultEvent, fil:ft.FilePicker, dp: ft.Container, page: pG):
-    if e.files != None:
-        dp.visible = True
-        dp.update() # add total complete
-        old_path = e.files[0].path
-        _, tail = os.path.split(old_path)
-        name = tail.split('.')[0]
-        print(name)
-        path = os.path.join(root_path,'Books', f'{name}')
-        ass_path = f'/Books/{name}'
-        subtitle = []
-        current = 0
-        cont = dp.listtiles(page, name)
-        if not page.client_storage.get(f'Book.{name}'): 
-            past_hist = page.client_storage.get('Book.hist')
-            if not past_hist:
-                past_hist = []
-            
-            if name not in past_hist:
-                past_hist.append(name)
-                dp.content.controls[2].controls = [cont] + dp.content.controls[2].controls
-            else:
-                dp.content.controls[2].controls[past_hist.index(name)].done('d')
-                dp.content.controls[2].controls[past_hist.index(name)].update()
-            dp.open = True
-            dp.update()
-
-            if not os.path.exists(path):
-                os.makedirs(os.path.join(path,'parts'))
-                os.makedirs(os.path.join(path,'sub'))
-            
-
-            page.client_storage.set(f'Book.hist', 
-                                past_hist)
-
-            extraction
-            total, duration = extraction(old_path, os.path.join(path,'parts'))
-            # image
-            img = loader(old_path, name)
-            
-            page.client_storage.set(f'Book.{name}',
-                                [ass_path,subtitle,current, total, duration, img])
-
-            if name not in past_hist:
-                cont.done('f')
-            else:
-                for i in dp.content.controls[2].controls:
-                    if i.content.content.controls[0].value == name:
-                        i.done('f')
 
 def convertMillis(millis):
     if type(millis) != int: millis = 0

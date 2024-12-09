@@ -202,6 +202,8 @@ cscope.out
 cscope.in.out
 cscope.po.out
 
+assets\Books
+
 # Vim
 *.swo
 *.swp

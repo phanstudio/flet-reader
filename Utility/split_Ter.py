@@ -1,11 +1,11 @@
 from pydub import AudioSegment
 import math, os
+# AudioSegment.converter = r"C:\extras\ffmpeg\bin\ffmpeg.exe"
 
 class SplitWavAudioMubin():
     def __init__(self, folder, filename):
         self.folder = folder
         self.filename = filename
-
         self.audio = AudioSegment.from_mp3(self.filename)
     
     def get_duration(self):

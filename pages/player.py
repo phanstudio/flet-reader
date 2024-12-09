@@ -135,27 +135,27 @@ def subpage2(page, overl,
 
             self.nav_bar = ft.Container(ft.Row([
                 self.buttom_button(
-                ico=ft.icons.ADD_LINK,
+                ico=ft.Icons.ADD_LINK,
                 txt= 'section',
                 onc=  self.close_dll,
                 ),
                 self.buttom_button(
-                ico=ft.icons.SPEED,
+                ico=ft.Icons.SPEED,
                 txt= 'speed',
                 onc= self.adjust_speed,
                 ),
                 self.buttom_button(
-                ico=ft.icons.TIMER_OUTLINED,
+                ico=ft.Icons.TIMER_OUTLINED,
                 txt= 'timer',
                 # on_click=self.play,
                 ),
                 self.buttom_button(
-                ico=ft.icons.LIST_ALT,
+                ico=ft.Icons.LIST_ALT,
                 txt= 'chapter',
                 onc = lambda _: self.page.go('/lib'+self.num),
                 ),
                 self.buttom_button(
-                ico=ft.icons.NOTE_ALT,
+                ico=ft.Icons.NOTE_ALT,
                 txt= 'q-note',
                 onc= lambda _: self.opp(),
                 ),
@@ -165,36 +165,36 @@ def subpage2(page, overl,
                 audio=self.audio1, on_change_position=self.seek_position
             )
             self.play_button = ft.IconButton(
-                icon=ft.icons.PLAY_ARROW,
+                icon=ft.Icons.PLAY_ARROW,
                 icon_color= GOLD,
                 icon_size= 30,
                 visible=False,
                 on_click=self.play,
             )
             self.pause_button = ft.IconButton(
-                icon=ft.icons.PAUSE,
+                icon=ft.Icons.PAUSE,
                 icon_color= GOLD,
                 visible=False,
                 on_click=self.pause,
             )
             self.next_button = ft.IconButton(
-                icon=ft.icons.SKIP_NEXT,
+                icon=ft.Icons.SKIP_NEXT,
                 # visible=False,
                 on_click= self.next,
             )
             self.fastforward_button = ft.IconButton(
-                icon=ft.icons.FAST_FORWARD,
+                icon=ft.Icons.FAST_FORWARD,
                 # visible=False,
                 on_click=self.ff_song,
                 data= 10,
             )
             self.prev_button = ft.IconButton(
-                icon=ft.icons.SKIP_PREVIOUS,
+                icon=ft.Icons.SKIP_PREVIOUS,
                 # visible=False,
                 on_click=self.prev,
             )
             self.reverse_button = ft.IconButton(
-                icon=ft.icons.FAST_REWIND,
+                icon=ft.Icons.FAST_REWIND,
                 # visible=False,
                 on_click=self.fr_song,
                 data= 10,
@@ -204,7 +204,7 @@ def subpage2(page, overl,
             self.start_duration = ft.Text(size= 12, value= '0:00:00') #change later
             self.end_duration = ft.Text(size= 12, value= '0:00:00')
             self.title = ft.Row([
-                ft.IconButton(icon= ft.icons.CHEVRON_LEFT,
+                ft.IconButton(icon= ft.Icons.CHEVRON_LEFT,
                               on_click= lambda _: self.back_but(),
                               ),
                 ft.Column([
@@ -214,7 +214,7 @@ def subpage2(page, overl,
                                  text_align= 'center')   
                 ], spacing= 0,
                 horizontal_alignment= ft.CrossAxisAlignment.CENTER),
-                ft.IconButton(icon= ft.icons.STAR),
+                ft.IconButton(icon= ft.Icons.STAR),
             ], alignment= ft.MainAxisAlignment.SPACE_BETWEEN)
             self.textt = ft.ListView(expand=True, spacing= 5,
                                      auto_scroll= True)
@@ -278,7 +278,7 @@ def subpage2(page, overl,
             self.dlg.open = True
             self.page.update()
 
-        def buttom_button(self, ico= ft.icons.LIST_ALT, txt= 'Love', onc=None):
+        def buttom_button(self, ico= ft.Icons.LIST_ALT, txt= 'Love', onc=None):
             return ft.IconButton(content=ft.Column([ft.Icon(
                 ico,
                 ),

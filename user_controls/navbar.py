@@ -10,11 +10,11 @@ class Navbar(ft.NavigationBar):
             indicator_shape= ft.CircleBorder(),
             label_behavior= ft.NavigationBarLabelBehavior.ALWAYS_HIDE,
             destinations= [
-                ft.NavigationBarDestination('Home', ft.icons.HOME_ROUNDED, data= '/'),
-                ft.NavigationBarDestination('Home', ft.icons.ADD_BOX, data= '/add'),
-                ft.NavigationBarDestination('Home', ft.icons.LOCAL_LIBRARY_ROUNDED, data= '/lib'),
-                ft.NavigationBarDestination('Home', ft.icons.BOOK, data= '/bmark'),
-                ft.NavigationBarDestination('Note', ft.icons.EDIT_NOTE, data= '/note'),
+                ft.NavigationBarDestination('Home', ft.Icons.HOME_ROUNDED, data= '/'),
+                ft.NavigationBarDestination('Add', ft.Icons.ADD_BOX, data= '/add'),
+                ft.NavigationBarDestination('Lib', ft.Icons.LOCAL_LIBRARY_ROUNDED, data= '/lib'),
+                ft.NavigationBarDestination('Section', ft.Icons.BOOK, data= '/section'),
+                ft.NavigationBarDestination('Note', ft.Icons.EDIT_NOTE, data= '/note'),
             ],
             on_change= self.onchange,
         )

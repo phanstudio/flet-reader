@@ -28,7 +28,7 @@ def cnr(ids, src, val, per, time, text):
     return {'ids':ids, 'src':src, 'val': val, 'per': per, 'time': time, 'text': text}
 
 def p221(p2, page:pG):
-    p2.onchange(per_clamp(page.window_width, 282.4))
+    p2.onchange(per_clamp(page.window.width, 282.4))
     if page.route == '/lib':
         p2.update()
 
@@ -40,10 +40,10 @@ def change_theme(page:pG) -> None:
 
 def create_note(page: pG, num =1, head='', body = [['','H'],]):
     # H, SH, T
-    page.client_storage.set(f'Note.{num}', 
-                            [head, 
-                             body,
-                            ])
+    page.client_storage.set(
+        f'Note.{num}', 
+        [head, body,]
+    )
 
 def remove_note(page: pG, num =1):
     # H, SH, T
@@ -57,8 +57,9 @@ def load_note_prop(page: pG, ld = 'Note.1'):
 
 def open_note(page:pG):
     random_uuid = uuid.uuid4()
-    page.go(f'/note/{random_uuid}')
-
+    # page.go(f'/note/{random_uuid}')
+    page.session.set("NoteId", random_uuid)
+    page.go(f'/editnote')
 
 def convertMillis(millis):
     if type(millis) != int: millis = 0

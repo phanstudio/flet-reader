@@ -2,7 +2,8 @@ import time
 # import numpy as np
 import flet as ft
 from textwrap import TextWrapper
-from Utility import GOLD, convertsrc, convertminsec
+from Utility import *
+import flet.canvas as cv
 
 def check(t, l: list):
     if len(l) > 0:
@@ -22,76 +23,76 @@ def loads(srts= './subtitles.srt'):
     ttl = [convertsrc(i[1])[0] for i in tts]
     return [ttl,ttv]
 
+def convertMillis(millis):
+    if type(millis) != int: millis = 0
+    seconds = int(millis / 1000) % 60
+    minutes = int(millis / (1000 * 60)) % 60
+    # hours = int(millis / (1000 * 60* 60)) % 24
+
+    seconds_str = f"0{seconds}" if seconds < 10 else f"{seconds}"
+    minutes_str = f"0{minutes}" if minutes < 10 else f"{minutes}"
+    # return f"{hours}:{minutes_str}:{seconds_str}"
+    return f"{minutes_str}:{seconds_str}"
+
+
 def subpage2(page, overl,
              ll= [[],[]],
              url = r'./mod2/0_audiobook_LeavingTheRatRaceWithPython.mp3'
              ):
-    import flet.canvas as cv
-
     
-    def convertMillis(millis):
-        if type(millis) != int: millis = 0
-        seconds = int(millis / 1000) % 60
-        minutes = int(millis / (1000 * 60)) % 60
-        # hours = int(millis / (1000 * 60* 60)) % 24
+    
+    # class Track(ft.GestureDetector):
+    #     def __init__(self, audio, on_change_position):
+    #         super().__init__()
+    #         # self.visible = False
+    #         self.content = ft.Container(
+    #             content=cv.Canvas(
+    #                 on_resize=self.canvas_resized,
+    #                 shapes=[
+    #                     cv.Rect(
+    #                         x=0,
+    #                         y=0,
+    #                         height=5,
+    #                         border_radius=3,
+    #                         paint=ft.Paint(color=ft.colors.GREY_500),
+    #                         width=100,
+    #                     ),
+    #                     cv.Rect(
+    #                         x=0,
+    #                         y=0,
+    #                         height=5,
+    #                         border_radius=3,
+    #                         paint=ft.Paint(color=GOLD),
+    #                         width=0,
+    #                     ),
+    #                 ],
+    #             ),
+    #             height=10,
+    #             width=float("inf"),
+    #         )
+    #         self.audio = audio
+    #         self.audio_duration = None
+    #         self.on_pan_start = self.find_position
+    #         self.on_pan_update = self.find_position
+    #         self.on_hover = self.change_cursor
+    #         self.on_change_position = on_change_position
 
-        seconds_str = f"0{seconds}" if seconds < 10 else f"{seconds}"
-        minutes_str = f"0{minutes}" if minutes < 10 else f"{minutes}"
-        # return f"{hours}:{minutes_str}:{seconds_str}"
-        return f"{minutes_str}:{seconds_str}"
+    #     def canvas_resized(self, e: cv.CanvasResizeEvent):
+    #         self.track_width = e.width
+    #         e.control.shapes[0].width = e.width
+    #         e.control.update()
 
-    class Track(ft.GestureDetector):
-        def __init__(self, audio, on_change_position):
-            super().__init__()
-            # self.visible = False
-            self.content = ft.Container(
-                content=cv.Canvas(
-                    on_resize=self.canvas_resized,
-                    shapes=[
-                        cv.Rect(
-                            x=0,
-                            y=0,
-                            height=5,
-                            border_radius=3,
-                            paint=ft.Paint(color=ft.colors.GREY_500),
-                            width=100,
-                        ),
-                        cv.Rect(
-                            x=0,
-                            y=0,
-                            height=5,
-                            border_radius=3,
-                            paint=ft.Paint(color=GOLD),
-                            width=0,
-                        ),
-                    ],
-                ),
-                height=10,
-                width=float("inf"),
-            )
-            self.audio = audio
-            self.audio_duration = None
-            self.on_pan_start = self.find_position
-            self.on_pan_update = self.find_position
-            self.on_hover = self.change_cursor
-            self.on_change_position = on_change_position
+    #     def find_position(self, e):
+    #         position = int(self.audio_duration * e.local_x / self.track_width)
+    #         self.content.content.shapes[1].width = max(
+    #             0, min(e.local_x, self.track_width)
+    #         )
+    #         self.update()
+    #         self.on_change_position(position)
 
-        def canvas_resized(self, e: cv.CanvasResizeEvent):
-            self.track_width = e.width
-            e.control.shapes[0].width = e.width
-            e.control.update()
-
-        def find_position(self, e):
-            position = int(self.audio_duration * e.local_x / self.track_width)
-            self.content.content.shapes[1].width = max(
-                0, min(e.local_x, self.track_width)
-            )
-            self.update()
-            self.on_change_position(position)
-
-        def change_cursor(self, e: ft.HoverEvent):
-            e.control.mouse_cursor = ft.MouseCursor.CLICK
-            e.control.update()
+    #     def change_cursor(self, e: ft.HoverEvent):
+    #         e.control.mouse_cursor = ft.MouseCursor.CLICK
+    #         e.control.update()
 
     class AudioPlayer(ft.Column):
         def __init__(self, url):
@@ -486,3 +487,221 @@ def main(page: ft.Page):
 
 if __name__ == "__main__":
     ft.app(target=main)
+
+
+
+
+class Track(ft.GestureDetector):
+    def __init__(self, audio, on_change_position):
+        super().__init__()
+        self.content = ft.Container(
+            content=cv.Canvas(
+                on_resize=self.canvas_resized,
+                shapes=[
+                    cv.Rect(
+                        x=0,
+                        y=0,
+                        height=5,
+                        border_radius=3,
+                        paint=ft.Paint(color= CONTAINER_COLOR),
+                        width=100,
+                    ),
+                    cv.Rect(
+                        x=0,
+                        y=0,
+                        height=5,
+                        border_radius=3,
+                        paint=ft.Paint(color=GOLD),
+                        width=0,
+                    ),
+                ],
+            ),
+            height=10,
+            width=float("inf"),
+        )
+        self.audio = audio
+        self.audio_duration = None
+        self.on_pan_start = self.find_position
+        self.on_pan_update = self.find_position
+        # self.on_tap = self.tap_position
+        self.on_hover = self.change_cursor
+        self.on_change_position = on_change_position
+
+    def canvas_resized(self, e: cv.CanvasResizeEvent):
+        self.track_width = e.width
+        e.control.shapes[0].width = e.width
+        e.control.update()
+
+    def tap_position(self, e:ft.ControlEvent):
+        print('drag instead')
+
+    def find_position(self, e):
+        position = int(self.audio_duration * e.local_x / self.track_width)
+        position = max(
+                0, min(position, self.audio_duration)
+            )
+        self.content.content.shapes[1].width = max(
+            0, min(e.local_x, self.track_width)
+        )
+        self.update()
+        self.on_change_position(position)
+
+    def change_cursor(self, e: ft.HoverEvent):
+        e.control.mouse_cursor = ft.MouseCursor.CLICK
+        e.control.update()
+
+# class hover_button(ft.GestureDetector):
+#     def __init__(self, controls, bgcolor = ft.colors.TRANSPARENT, onclick = None, ref = None, visible= None):
+#         super().__init__(ref= ref, visible= visible)
+#         self.content = ft.Container(
+#             controls,
+#             bgcolor= bgcolor,
+#             border_radius= 2,
+#             padding= ft.padding.symmetric(horizontal=3, vertical= 1),
+#             expand= True,
+#             on_click= onclick
+#         )
+#         self.on_hover = self.onhover
+    
+#     def onhover(self, e: ft.HoverEvent):
+#         e.control.mouse_cursor = ft.MouseCursor.CLICK
+#         e.control.update()
+
+# class Audioplayer():
+#     def __init__(self, head:ft.Container) -> None:
+#         self.head = head
+#         self.paused = False
+
+#     def loads(self, e): # this to load text
+#         self.head.Pg.session.set('pasted_currrent', self.head.current)
+#         if self.head.started:
+#             self.head.started = False
+#             self.head.audio1.play()
+#         if self.head.nexted:
+#             self.head.nexted = False
+#             self.head.audio1.play()
+#         if self.head.skip:
+#             position = self.head.skip
+#             self.head.skip = False
+#             self.head.audio1.play()
+#             self.head.audio1.pause()
+#             self.head.audio1.seek(position)
+#             self.head.audio1.resume()
+#             self.head.Pg.update()
+
+#     def change_position(self, e:ft.ControlEvent):
+#         current = self.head.current
+#         self.head.position = round(sum(self.head.meta[1][:current]))*1000 + int(e.data) # make animation smother
+#         progress = self.head.position / self.head.total
+#         self.head.track_canvas.content.content.shapes[1].width = (progress* self.head.track_canvas.track_width)
+#         if self.head.set_time != None:
+#             self.head.title.current.value = self.head.set_time(self.head.position /1000)
+#         self.head.update()
+    
+#     def seek_position(self, position):
+#         for i in range(len(self.head.meta[1])):
+#             if round(sum(self.head.meta[1][:i])*1000) <= position < round(sum(self.head.meta[1][:i+1])*1000):
+#                 self.head.current = i
+#                 position = position - round(sum(self.head.meta[1][:i])*1000)
+#                 self.head.skip = position
+#                 self.load(self.head.current)
+#                 self.head.audio1.play()
+#                 break
+    
+#     def nexts(self, e):
+#         if e.data == 'completed':
+#             self.head.nexted = True
+#             self.head.current += 1
+#             if self.head.current == self.head.meta[-1]:
+#                 self.head.nexted = False
+#                 self.reload()
+#                 self.head.started = False
+#                 self.head.playbut.current.visible = True
+#                 self.head.pausebut.current.visible = False
+#                 self.head.title.current.value = self.head.set_time(self.head.total /1000)
+#                 self.head.update()
+#             else:
+#                 self.load(self.head.current)
+
+#     def reload(self):
+#         self.head.current = 0
+#         self.head.position = 0
+#         self.paused = False
+#         self.head.track_canvas.content.content.shapes[1].width = (0)
+#         self.head.track_canvas.update()
+
+#     def ff_song(self, e: ft.ControlEvent):
+#         new_position = (int(self.head.position) - round(sum(self.head.meta[1][:self.head.current])*1000))+ (10-1)*1000
+#         self.head.position = round(sum(self.head.meta[1][:self.head.current])*1000) + new_position
+#         progress = self.head.position / self.head.total
+#         if progress < 1:
+#             self.head.track_canvas.content.content.shapes[1].width = (progress* self.head.track_canvas.track_width)
+#             if not new_position <= round(self.head.meta[1][self.head.current]*1000):
+#                 for i in range(len(self.head.meta[1])): # use numpy to simplify
+#                     if round(sum(self.head.meta[1][:i])*1000) < self.head.position < round(sum(self.head.meta[1][:i+1])*1000):
+#                         self.head.current = i
+#                         position = new_position - round(sum(self.head.meta[1][:i])*1000)
+#                         self.head.skip = position
+#                         self.load(self.head.current)
+#                         if not self.paused and self.head.started:
+#                             self.head.audio1.play()
+#                         break
+#             else:
+#                 self.head.seek_position(new_position)
+#         self.head.update()
+
+#     def fr_song(self, e: ft.ControlEvent):
+#         if self.head.started:
+#             new_position = (int(self.head.position) - round(sum(self.head.meta[1][:self.head.current])*1000)) - (10-1)*1000
+#             self.head.position = round(sum(self.head.meta[1][:self.head.current])*1000) + new_position
+#             if self.head.position < 0: self.head.position = 0
+#             progress = self.head.position / self.head.total
+#             if progress < 1:
+#                 self.head.track_canvas.content.content.shapes[1].width = (progress* self.head.track_canvas.track_width)
+                
+#                 if not new_position >= 0:
+#                     for i in range(len(self.head.meta[1])): # use numpy to simplify
+#                         if round(sum(self.head.meta[1][:i])*1000) <= self.head.position < round(sum(self.head.meta[1][:i+1])*1000): # decayng function
+#                             self.head.current = i
+#                             position = new_position - round(sum(self.head.meta[1][:i])*1000)
+#                             self.head.skip = position
+#                             self.load(self.head.current)
+#                             if not self.paused:
+#                                 self.head.audio1.play()
+#                             break
+#                 else:
+#                     self.seek_position(new_position)
+#             self.head.update()
+
+#     def load(self, n):
+#         path = f'{ROOTPATH}/temp_audio/{n}.wav'
+#         self.head.audio1.src = path
+#         self.head.audio1.update()
+
+#     def pause(self, e):
+#         self.paused = True
+#         self.head.audio1.pause()
+#         self.head.playbut.current.visible = True
+#         self.head.pausebut.current.visible = False
+#         self.head.update()
+
+#     def play(self, e): # check if start or not 
+#         if not self.head.started:
+#             self.reload()
+#             self.head.started = True
+#             self.load(self.head.current)
+#             self.head.audio1.play()
+#         else:
+#             self.head.audio1.resume()
+#         self.paused = False
+#         self.head.playbut.current.visible = False
+#         self.head.pausebut.current.visible = True
+#         self.head.update()
+    
+#     def stop(self, e):
+#         self.head.started = False
+#         self.pause('')
+#         self.head.title.current.value = self.head.set_time(self.head.total /1000)
+#         self.head.update()
+#         self.reload()
+

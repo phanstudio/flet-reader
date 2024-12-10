@@ -1,6 +1,6 @@
 import flet as ft
 from Utility import *
-from user_controls import Note_frame, Library_frame, Reading, Library, Note, Navbar
+from user_controls import Navbar
 
 # class audiomark(Container):
 #     def __init__(self, num, rang, audio1, src, par=None, 
@@ -163,51 +163,53 @@ class SectionView(ft.View):
             bgcolor = BACKGROUND_COLOR,
             navigation_bar= Navbar(3),
         )
-        # self.padding=ft.padding.only(bottom= 60)
-    
 
+        self.grid2 = ft.ListView(
+            expand= True,
+            spacing= 15,
+        )
+
+        self.defualt = ft.Image(
+            '/covers/10.png', 
+            expand=True
+        )
+
+        self.controls = [
+            ft.Row(
+                controls=[
+                    ft.Text(
+                        'Bookmarks', 
+                        size= 20, 
+                        weight= BOLD
+                    ), 
+                    ft.IconButton(
+                        icon=ft.Icons.DELETE, 
+                        on_click=self.del_toggle, 
+                        data= 0
+                    ),
+                ], 
+                alignment= ft.MainAxisAlignment.SPACE_BETWEEN,
+            ),
+            self.defualt,
+            self.grid2,
+        ]
+        
     def did_mount(self):
         # self.audio1.pause()
         # self.audio1.outside = 1
         section = self.page.client_storage.get('section.list')
         if section is None: section = []
-
-        self.grid2 = self.grids()
+        
         for note in section:
             num, note_prop, rang = note
             # self.grid2.controls.append(
             #     # audiomark(num, rang, audio1, note_prop, self)
             # )
         
-        self.defualt = ft.Image('/covers/10.png')
-
-        if len(section) > 0:
-            self.defualt.visible = False
-
-        self.content = ft.Column(
-            controls=[
-                ft.Row(
-                    controls=[
-                        ft.Text(
-                            'Bookmarks', 
-                            size= 20, 
-                            weight= BOLD
-                        ), 
-                        ft.IconButton(
-                            icon=ft.Icons.DELETE, 
-                            on_click=self.del_toggle, 
-                            data= 0
-                        ),
-                    ], 
-                    alignment= ft.MainAxisAlignment.SPACE_BETWEEN,
-                ),
-                self.defualt,
-                self.grid2,
-            ], 
-            expand= True,
-        )
-        
+        self.defualt.visible = not len(section) > 0
+        self.grid2.visible = not self.defualt.visible
         self.update()
+
         return super().did_mount()
 
     def del_toggle(self, e):
@@ -221,8 +223,3 @@ class SectionView(ft.View):
                 i.close.current.visible = False
         self.update()
 
-    def grids(self) -> ft.ListView:
-        return ft.ListView(
-            expand= True,
-            spacing= 15,
-        )

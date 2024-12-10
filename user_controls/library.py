@@ -214,7 +214,9 @@ class Library_frame(ft.Container):
         self.frame.content.controls[0].controls[1].height -= 10
         e.control.update()
         if self.dels.current.visible != True:
-            self.page.go(f'/lib/{self.id}')
+            self.page.go(f'/bookover')
+            # self.page.go(f'/lib/{self.id}')
+            self.page.session.set("BookId", self.id)
         else:
             self.page.client_storage.remove(f'Book.{self.info[0]}')
             path = os.path.normpath(f'Books/{self.info[0]}')

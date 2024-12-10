@@ -69,7 +69,9 @@ class MainNote(ft.TextButton):
     
     def onclick(self, e: ft.ControlEvent):
         if not self.check.current.visible:
-            self.page.go(f'/note/{e.control.data}')
+            self.page.session.set("NoteId", e.control.data)
+            self.page.go(f'/editnote')
+            # self.page.go(f'/note/{e.control.data}')
         else:
             self.check.current.value = (
                 True
@@ -100,7 +102,10 @@ class NoteView(ft.View):
             padding= 0
         )
 
-        self.defualt = ft.Image('/covers/r2.png')
+        self.defualt = ft.Image(
+            '/covers/r2.png',
+            expand= True
+        )
         
         pb = ft.PopupMenuButton(
             items=[
@@ -176,8 +181,8 @@ class NoteView(ft.View):
             self.grid2.controls.append(
                 MainNote(tit= note_prop[0], subt=note_prop[1][0], n= num, pg= self.page)
             )
-        if len(notes) > 0:
-            self.defualt.visible = False
+        
+        self.defualt.visible = not len(notes) > 0
         self.grid2.visible = not self.defualt.visible 
         self.floating_action_button.on_click= lambda _: open_note(self.page)
         self.update()

@@ -1,7 +1,6 @@
 import flet as ft
 from Utility import *
-from user_controls import Note_frame, Library_frame, Reading, Library, Note, Navbar
-import pytweening as pytw
+from user_controls import Navbar
 
 class section_overlay(ft.Container):
     def __init__(self, page:pG, spg, audio1):
@@ -57,12 +56,20 @@ class Editor(ft.Container):
         self.typs = typ
         self.delfunc = delfunc
         self.data = 'e'
+        # self.expand = True
 
         self.value = value
-        m = {'H': (15, 'Add a Header', 0, ft.TextCapitalization.WORDS, BOLD, GOLD, 'red', 30),
-             'SH': (12, 'Add a Subheader', 5, ft.TextCapitalization.SENTENCES, BOLD, ft.Colors.with_opacity(0.8,GOLD), 'yellow', 20),
-             'T': (10, 'Add a Body', 10, None, 'blue', '', '', 15),
-              }
+        m = { # change to dict
+            'H': (
+                15, 'Add a Header', 0, ft.TextCapitalization.WORDS, BOLD, GOLD, 'red', 30
+            ),
+            'SH': (
+                12, 'Add a Subheader', 5, ft.TextCapitalization.SENTENCES, BOLD, ft.Colors.with_opacity(0.8,GOLD), 'yellow', 20
+            ),
+            'T': (
+                10, 'Add a Body', 10, None, 'blue', None, None, 15
+            ),
+        }
         n =['text_size', 'hint_text']
         self.typ = dict(zip(n, m[typ][:-2]))
         self.pad = m[typ][-6]
@@ -76,30 +83,35 @@ class Editor(ft.Container):
         self.padding = ft.padding.only(self.pad)
 
     def onhover(self, e: ft.ControlEvent):
-        if e.data == 'true':
-            self.close.current.visible = True
-            self.bar.current.visible = True
-        else:
-            self.close.current.visible = False
-            self.bar.current.visible = False
+        self.close.current.visible = (e.data == 'true')
+        # self.bar.current.visible = self.close.current.visible
         self.update()
     
     def editor(self):
         # for body can be a row mechnisim
-        self.frame = ft.Row([], expand= 5, spacing= 4)
-        st = ft.TextField(value=self.value,
-                          color= self.c,
-                          dense= True,
-                          capitalization= self.cap,
-                          on_change= self.onchange,
-                          border= ft.InputBorder.NONE,
-                          data= self.typs,
-                          text_style= ft.TextStyle(
-                                weight= self.b,
-                            ),
-                            **self.typ,
-                                multiline=True, #selection_color= GOLD
-                                )
+        self.frame = ft.Row(
+            # expand= 5, 
+            # expand=True,
+            spacing= 4,
+            vertical_alignment= ft.CrossAxisAlignment.START,
+        )
+        st = ft.TextField(
+            # value=self.value,
+            value="i love her"*20,
+            color= self.c,
+            dense= True,
+            capitalization= self.cap,
+            on_change= self.onchange,
+            border= ft.InputBorder.NONE,
+            data= self.typs,
+            text_style= ft.TextStyle(
+                weight= self.b,
+            ),
+            **self.typ,
+            multiline=True, 
+            collapsed=True,
+            #selection_color= GOLD
+        )
         
         self.close = ft.Ref[ft.IconButton]()
         self.bar = ft.Ref[ft.ElevatedButton]()
@@ -109,31 +121,41 @@ class Editor(ft.Container):
                 ft.Icons.CLOSE, icon_size= 15,
                 ref= self.close,
                 on_click= self.closed,
-                  width= 20,
-                  height= 20,
-                  visible= False,
-                  style=ft.ButtonStyle(
-                      padding= 0
-                  ))
-            )
-        self.frame.controls.append(
-            ft.ElevatedButton(
-                width= 5,
-                ref= self.bar,
-                height= self.but_s,
+                width= 20,
+                height= 20,
                 visible= False,
                 style=ft.ButtonStyle(
-                shape= ft.RoundedRectangleBorder(radius=1),
-                bgcolor= {
-                    ft.ControlState.HOVERED: GOLD,
-                    ft.ControlState.DEFAULT: self.but_C,
-                    ft.ControlState.PRESSED: ft.Colors.SURFACE,
-                    },
-                overlay_color= ft.Colors.with_opacity(0.2,'white')
-                ))
+                    padding= 0
+                )
+            )
         )
+        # self.frame.controls.append(
+        #     ft.Column(
+        #         controls=[
+        #             ft.ElevatedButton(
+        #                 " ",
+        #                 width= 5,
+        #                 ref= self.bar,
+        #                 # height= self.but_s,
+        #                 visible= True,
+        #                 style=ft.ButtonStyle(
+        #                     shape= ft.RoundedRectangleBorder(radius=1),
+        #                     bgcolor= {
+        #                         ft.ControlState.HOVERED: GOLD,
+        #                         ft.ControlState.DEFAULT: self.but_C,
+        #                         ft.ControlState.PRESSED: ft.Colors.SURFACE,
+        #                     },
+        #                     overlay_color= "white",
+        #                 ),
+        #                 expand= True,
+        #             ),
+        #         ],
+        #         expand= True
+        #     )
+        # )
+        self.frame.controls.append(ft.VerticalDivider())
         self.frame.controls.append(st)
-        return self.frame
+        return ft.Container(self.frame, bgcolor= "red", padding= 5)
     
     def closed(self, e):
         self.delfunc.controls.remove(self)
@@ -237,19 +259,20 @@ class EditNoteView(ft.View):
         self.head = 'Untitled Note'
             
         self.content: ft.Column = ft.Column(
-            [], 
             # height= 610,
             # tight= True,
             expand= True,
-            alignment= ft.MainAxisAlignment.CENTER
-        )
-        self.cont = ft.Container(
-            self.content, 
-            # bgcolor= 'red',
+            alignment= ft.MainAxisAlignment.CENTER,
         )
         self.controls = [
-            self.cont
+            ft.Stack(
+                controls=[
+                    self.content
+                ]
+            )
         ]
+
+        
     
     def onclick(self):
         self.page.frame.controls.append(Editor())

@@ -146,45 +146,30 @@ class BookOverView(ft.View):
             bgcolor = BACKGROUND_COLOR,
             navigation_bar= Navbar(2),
         )
-        self.content: ft.Column = ft.Column(
-            height= 610,
-            # tight= True,
-            # expand= True,
-            alignment= ft.MainAxisAlignment.CENTER,
-        )
-        self.cont = ft.Container(
-            self.content, 
-            # bgcolor= 'red',
-            expand= True,
+
+        self.frame = ft.ListView(
+            expand= 5,
+            spacing= 2,
         )
         self.controls = [
-            self.cont
+            self.header(),
+            self.info(),
+            ft.Text(f'{self.num} Parts'),
+            self.frame,
         ]
     
     def did_mount(self):
         self.ids = self.page.session.get("BookId")
         if self.ids:
             self.ndts = self.page.client_storage.get(f'Book.{self.ids}')
-            editor = ft.ListView(
-                [], 
-                expand= 5,
-                spacing= 2,
-            )
-            self.frame = editor
+            
             self.num = self.ndts[3]
 
             for i in range(self.num):
                 if i != self.num -1:
-                    editor.controls.append(Chapters(i, '05:00', self.ids, self.ndts[0][1:], self.ndts[1]))
+                    self.frame.controls.append(Chapters(i, '05:00', self.ids, self.ndts[0][1:], self.ndts[1]))
                 else:
-                    editor.controls.append(Chapters(i, self.ndts[4], self.ids, self.ndts[0][1:], self.ndts[1]))
-
-            self.content.controls += [
-                self.header(),
-                self.info(),
-                ft.Text(f'{self.num} Parts'),
-                editor,
-            ]
+                    self.frame.controls.append(Chapters(i, self.ndts[4], self.ids, self.ndts[0][1:], self.ndts[1]))
             self.update()
         else:
             self.page.go("/lib")
@@ -193,22 +178,27 @@ class BookOverView(ft.View):
     def info(self):
         if len(self.ndts) == 6:
             src = self.ndts[5]
-        else: src = 'defualt.png'
+        else: src = 'defualt.jpg'
+        src = 'defualt.jpg'
         src = f'covers/'+src
         r = ft.Row(
             controls=[
-                ft.Image(src, height= 130, width= 90,
-                        border_radius= 5,
-                        fit= ft.ImageFit.COVER),
+                ft.Image(
+                    src, 
+                    # height= 130, 
+                    width= 90,
+                    border_radius= 5,
+                    fit= ft.ImageFit.COVER,
+                ),
                 ft.Column(
                     controls=[
                         ft.Text(
                             self.ids.title(), 
-                            size= 20, 
-                            width= 220,
+                            size= 20,
+                            expand= True,
                         ),
                         ft.Text(
-                            f'Currently readding: {self.ndts[2]}'.title()
+                            f'Currently reading: {self.ndts[2]}'.title()
                         ),
                         ft.Text(
                             f'30% read'.title()
@@ -220,8 +210,10 @@ class BookOverView(ft.View):
                             height= 4
                         ),
                     ],
+                    expand= True,
                 ),
             ],
+            expand= True,
         )
         return r
 

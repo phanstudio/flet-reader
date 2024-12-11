@@ -2,13 +2,13 @@ import subprocess
 import sys, os
 
 from vosk import Model, KaldiRecognizer, SetLogLevel
+from Utility import ROOTPATH
 
 def exctractors_srt(url, num, nam):
     SAMPLE_RATE = 44100
     SetLogLevel(-1)
 
-    root_path = os.getenv("FLET_ASSETS_PATH")
-    model = Model(os.path.join(root_path,'models','M3-sm2'),lang="en-us")
+    model = Model(os.path.join(ROOTPATH,'models','M3-sm2'),lang="en-us")
     rec = KaldiRecognizer(model, SAMPLE_RATE)
     rec.SetWords(True)
 
@@ -19,7 +19,7 @@ def exctractors_srt(url, num, nam):
 
         
         # writing the string to a new file
-        subtt = os.path.join(root_path,'Books',f'{nam}','sub')
+        subtt = os.path.join(ROOTPATH,'Books',f'{nam}','sub')
         srtout = os.path.join(subtt, f'{num}.srt')
         if not os.path.exists(subtt):
             os.makedirs(subtt)

@@ -51,7 +51,7 @@ class HomeView(ft.View):
         )
 		
         self.controls= [
-            Reading(),
+            Reading(), # chanhe to a float indicator
             Library(),
             self.libcontrainer,
             Note(),

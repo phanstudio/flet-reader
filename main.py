@@ -111,70 +111,7 @@ def main(page: ft.Page): # add security
     
     page.on_route_change = route_change
     page.on_view_pop = view_pop
-    page.go(page.route)
-
-    # frame = ft.Row()
-    # st = ft.TextField(
-    #     value="i love her"*20,
-    #     dense= True,
-    #     border= ft.InputBorder.NONE,
-    #     multiline=True, 
-    #     collapsed=True,
-    #     #selection_color= GOLD
-    # )
-    # frame.controls.append(
-    #     ft.IconButton(
-    #         ft.Icons.CLOSE, icon_size= 15,
-    #         width= 20,
-    #         height= 20,
-    #         visible= False,
-    #         style=ft.ButtonStyle(
-    #             padding= 0
-    #         )
-    #     )
-    # )
-    # frame.controls.append(
-    #     ft.Column(
-    #         controls=[
-    #             # ft.ElevatedButton(
-    #             #     " ",
-    #             #     width= 5,
-    #             #     visible= True,
-    #             #     style=ft.ButtonStyle(
-    #             #         shape= ft.RoundedRectangleBorder(radius=1),
-    #             #         bgcolor= {
-    #             #             ft.ControlState.HOVERED: GOLD,
-    #             #             ft.ControlState.PRESSED: ft.Colors.SURFACE,
-    #             #         },
-    #             #         overlay_color= "white",
-    #             #     ),
-    #             #     # expand= True,
-    #             # ),
-    #             ft.Container(bgcolor= "black", padding= 10, expand= True)
-    #         ],
-    #         expand= True,
-    #     )
-    # )
-    # frame.controls.append(
-    #     st
-    # )
-    # page.add(
-    #     ft.Column(
-    #         controls=[
-    #             ft.Row(
-    #                 controls=[
-    #                     ft.Container(height= 100, width= 10, bgcolor= "red"),
-    #                     ft.Container(width= 10, bgcolor= "black", expand= True, expand_loose= True),
-    #                     ft.VerticalDivider(),
-    #                 ],
-    #                 expand= True,
-    #                 # expand_loose= True
-    #             ),
-    #         ],
-    #         expand= True,
-    #         # expand_loose= True
-    #     )
-    # )
+    page.go(page.route)    
 
 if __name__ == "__main__":
     ft.app(target=main, assets_dir="assets")

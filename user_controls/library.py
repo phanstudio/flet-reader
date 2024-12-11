@@ -61,7 +61,8 @@ class Library_frame(ft.Container):
         wrap_lenght = 25
         self.info = li
         if len(li) == 7: src = li[6]
-        else: src = 'defualt.png'
+        else: src = 'defualt.jpg'
+        src = "defualt.jpg"
         src = f'/covers/'+src
         wrap = TextWrapper(wrap_lenght)
         short = shorten(text, wrap_lenght*3, placeholder='..')

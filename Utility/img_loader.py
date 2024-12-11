@@ -14,7 +14,7 @@ def loader(path:str, nam):
         imageFile.save(os.path.join(folders,f'{nam}.png'))
         img = nam
     except:
-        defualt_img_path = os.path.join(folders,'defualt.png')
+        defualt_img_path = os.path.join(folders,'defualt.jpg')
         if not os.path.exists(defualt_img_path):
             imageFile = Image.open(os.path.join(ROOTPATH,'9.png'))
             imageFile.save(defualt_img_path)

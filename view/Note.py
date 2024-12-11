@@ -25,7 +25,7 @@ class MainNote(ft.TextButton):
         
         self.content= ft.Row([
             ft.Checkbox(
-                fill_color= {ft.MaterialState.SELECTED:GOLD}, 
+                fill_color= {ft.ControlState.SELECTED:GOLD}, 
                 # on_change=self.onselect,
                 visible= False,
                 ref= self.check

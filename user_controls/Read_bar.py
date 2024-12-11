@@ -30,8 +30,7 @@ class readbar(Container): #change to progress bar
                                  content=Row([self.value], # expand
                                     alignment= align))
         
-        # pprint(self.cont.__dict__)
-        # print('\n\n')
+        self.content = self.cont
     
     # on_new_value
     @property
@@ -46,8 +45,4 @@ class readbar(Container): #change to progress bar
             self.value.width = handler* self.percent
             if handler < 0: self.value.width  = 0
         self.update()
-
-    
-    def build(self) -> Container:
-        return self.cont
 

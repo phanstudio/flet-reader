@@ -34,7 +34,7 @@ class Note(ft.Container):
             alignment= MainAxisAlignment.START,
         )
 
-class Note_frame(UserControl):
+class Note_frame(ft.Container):
     def __init__(self, titl= 'queen of hearts', content= 'Love', ids= 0):
         super().__init__()
         radius = 8
@@ -50,7 +50,7 @@ class Note_frame(UserControl):
                         ], spacing= 2), margin= 10),
                 Container(Row([self.tags('Learning', GOLD), self.tags('writing', '#6168CA'),
                              ], spacing= 5, alignment= MainAxisAlignment.END), margin=5)
-                ], spacing= 5), width= 150, bgcolor= ft.Colors.BACKGROUND, border_radius= radius,
+                ], spacing= 5), width= 150, bgcolor= ft.Colors.TRANSPARENT, border_radius= radius,
                 shadow= ft.BoxShadow(blur_radius= 5, 
                                      color= ft.Colors.with_opacity(0.05, ft.Colors.INVERSE_SURFACE), 
                                      offset= ft.Offset(0,7)),
@@ -59,6 +59,11 @@ class Note_frame(UserControl):
             )
         self.frame.on_hover = self.onhover
         self.frame.on_click = self.onclick
+        self.content = Column(
+            controls=[
+                self.frame
+            ]
+        )
 
     def onhover(self, e: ControlEvent):
         if e.data == 'true':
@@ -79,4 +84,4 @@ class Note_frame(UserControl):
                          bgcolor= f'#22{color}', padding= 3, border_radius= 3)
 
     def build(self):
-        return Container(Column([self.frame]))
+        return 

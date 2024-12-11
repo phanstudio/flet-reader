@@ -2,6 +2,36 @@ import flet as ft
 from Utility import *
 from user_controls import Navbar
 
+textStyleSheet = { # change to dict
+    'H': {
+        "text_size": 15,
+        "hint_text": 'Add a Header',
+        "weight": BOLD,
+        "color": GOLD,
+        "bar_color": 'red',
+        "capitalization": ft.TextCapitalization.WORDS,
+        "padding": 0,
+    },
+    'SH': {
+        "text_size": 12,
+        "hint_text": 'Add a Subheader',
+        "weight": BOLD,
+        "color": ft.Colors.with_opacity(0.8, GOLD),
+        "bar_color": 'yellow',
+        "capitalization": ft.TextCapitalization.SENTENCES,
+        "padding": 5,
+    },
+    'T': {
+        "text_size": 10,
+        "hint_text": 'Add Text',
+        "weight": None,
+        "color": None,
+        "bar_color": 'blue',
+        "capitalization": None,
+        "padding": 10,
+    },
+}
+
 class section_overlay(ft.Container):
     def __init__(self, page:pG, spg, audio1):
         self.page = page
@@ -51,119 +81,117 @@ class section_overlay(ft.Container):
         self.update()
 
 class Editor(ft.Container):
-    def __init__(self,delfunc: ft.Column,  typ= 'H', value= ''):
-        super().__init__()
-        self.typs = typ
-        self.delfunc = delfunc
-        self.data = 'e'
-        # self.expand = True
-
-        self.value = value
-        m = { # change to dict
-            'H': (
-                15, 'Add a Header', 0, ft.TextCapitalization.WORDS, BOLD, GOLD, 'red', 30
-            ),
-            'SH': (
-                12, 'Add a Subheader', 5, ft.TextCapitalization.SENTENCES, BOLD, ft.Colors.with_opacity(0.8,GOLD), 'yellow', 20
-            ),
-            'T': (
-                10, 'Add a Body', 10, None, 'blue', None, None, 15
-            ),
-        }
-        n =['text_size', 'hint_text']
-        self.typ = dict(zip(n, m[typ][:-2]))
-        self.pad = m[typ][-6]
-        self.cap = m[typ][-5]
-        self.b = m[typ][-4]
-        self.c = m[typ][-3]
-        self.but_s = m[typ][-1]
-        self.but_C = m[typ][-2]
-        self.content = self.editor()
-        self.on_hover = self.onhover
-        self.padding = ft.padding.only(self.pad)
-
-    def onhover(self, e: ft.ControlEvent):
-        self.close.current.visible = (e.data == 'true')
-        # self.bar.current.visible = self.close.current.visible
-        self.update()
-    
-    def editor(self):
-        # for body can be a row mechnisim
-        self.frame = ft.Row(
-            # expand= 5, 
-            # expand=True,
-            spacing= 4,
-            vertical_alignment= ft.CrossAxisAlignment.START,
+    def __init__(self, typ= 'H', value= ''):
+        super().__init__(
+            data = 'e',
+            expand = True,
         )
-        st = ft.TextField(
-            # value=self.value,
-            value="i love her"*20,
-            color= self.c,
+        self.typs = typ
+        self.value = value
+        self.nobar = False
+
+        self.typ = textStyleSheet[typ]
+        self.on_hover = self.onhover
+        self.padding = ft.padding.only(self.typ["padding"])
+        self.close = ft.Ref[ft.IconButton]()
+        self.bar = ft.Ref[ft.Container]()
+
+        self.text_body = ft.TextField(
+            value=self.value,
+            color= self.typ["color"],
             dense= True,
-            capitalization= self.cap,
-            on_change= self.onchange,
+            capitalization= self.typ["capitalization"],
             border= ft.InputBorder.NONE,
             data= self.typs,
             text_style= ft.TextStyle(
-                weight= self.b,
+                weight= self.typ["weight"],
             ),
-            **self.typ,
+            text_size= self.typ["text_size"],
+            # hint_text= self.typ["hint_text"],
+            label= self.typ["hint_text"],
             multiline=True, 
             collapsed=True,
             #selection_color= GOLD
+            expand= True,
+            on_change= self.onchange
         )
-        
-        self.close = ft.Ref[ft.IconButton]()
-        self.bar = ft.Ref[ft.ElevatedButton]()
 
-        self.frame.controls.append(
-            ft.IconButton(
-                ft.Icons.CLOSE, icon_size= 15,
-                ref= self.close,
-                on_click= self.closed,
-                width= 20,
-                height= 20,
-                visible= False,
-                style=ft.ButtonStyle(
-                    padding= 0
-                )
-            )
+        self.frame = ft.Row(
+            controls=[
+                ft.IconButton(
+                    ft.Icons.CLOSE, 
+                    icon_size= 15,
+                    ref= self.close,
+                    on_click= self.closed,
+                    width= 20,
+                    height= 20,
+                    visible= False,
+                    style=ft.ButtonStyle(
+                        padding= 0
+                    ),
+                ),
+                ft.Container(
+                    content=self.text_body,
+                    border= self.hide_border(False),
+                    expand= True,
+                    padding= ft.padding.only(5),
+                    ref= self.bar,
+                ),
+            ],
+            expand=True,
+            spacing= 0,
+            vertical_alignment= ft.CrossAxisAlignment.START,
         )
-        # self.frame.controls.append(
-        #     ft.Column(
-        #         controls=[
-        #             ft.ElevatedButton(
-        #                 " ",
-        #                 width= 5,
-        #                 ref= self.bar,
-        #                 # height= self.but_s,
-        #                 visible= True,
-        #                 style=ft.ButtonStyle(
-        #                     shape= ft.RoundedRectangleBorder(radius=1),
-        #                     bgcolor= {
-        #                         ft.ControlState.HOVERED: GOLD,
-        #                         ft.ControlState.DEFAULT: self.but_C,
-        #                         ft.ControlState.PRESSED: ft.Colors.SURFACE,
-        #                     },
-        #                     overlay_color= "white",
-        #                 ),
-        #                 expand= True,
-        #             ),
-        #         ],
-        #         expand= True
-        #     )
-        # )
-        self.frame.controls.append(ft.VerticalDivider())
-        self.frame.controls.append(st)
-        return ft.Container(self.frame, bgcolor= "red", padding= 5)
+
+        self.content = ft.Container(
+            self.frame, 
+            padding= 5, 
+            expand= True,
+        )
+    
+    def hide_border(self, value):
+        bar = not self.nobar
+        if bar:
+            return  (
+                ft.border.only(
+                    left= ft.BorderSide(
+                        5, 
+                        self.typ["bar_color"],
+                    ),
+                ) 
+                if not value else
+                None
+            )
+        else: 
+            return None
+    
+    def onchange(self, e=None):
+        if not len(self.text_body.value):
+            self.text_body.label = self.typ["hint_text"]
+            self.nobar = False
+        else:
+            self.nobar = True
+            self.text_body.label = ""
+        self.update()
+
+    def onhover(self, e: ft.ControlEvent):
+        self.close.current.visible = (e.data == 'true')
+        self.bar.current.border = self.hide_border(self.close.current.visible)
+        self.content.bgcolor = (
+            ft.Colors.with_opacity(0.2, self.typ["color"]) 
+            if self.close.current.visible else None
+        )
+        self.update()
     
     def closed(self, e):
-        self.delfunc.controls.remove(self)
-        self.delfunc.update()
+        self.parent.controls.remove(self)
+        self.parent.update()
 
-    def onchange(self, e: ft.ControlEvent):
-        # self.bar.current.height = 
+    def did_mount(self):
+        self.onchange()
+        self.bar.current.border = self.hide_border(self.close.current.visible)
         self.update()
+        return super().did_mount()
 
 class SimpleButton(ft.Container):
     def __init__(self, icon : ft.Icon = '', img = '', size = 15,
@@ -190,62 +218,56 @@ class SimpleButton(ft.Container):
         self.content = frame
 
 class FormatPanel(ft.Container):
-    def __init__(self, page, sec):
-        self.pg = page
-        self.sec = sec
-        super().__init__()
-
-        self.content = ft.Row(
-            controls=[
-                ft.Column(
-                    controls=[
-                        ft.Container(
-                            ft.Column(
-                                controls=[
-                                    SimpleButton(
-                                        img= r'iconz\heading.svg', 
-                                        size= 16, 
-                                        func= lambda _: self.onclick('H')
-                                    ),
-                                    SimpleButton(
-                                        img= r'iconz\heading-h2.svg', 
-                                        size= 20, 
-                                        func= lambda _: self.onclick('SH')
-                                    ),
-                                    SimpleButton(
-                                        ft.icons.TITLE, size= 14, 
-                                        func= lambda _: self.onclick('T')
-                                    ),
-                                    SimpleButton(
-                                        img= r'iconz\\new-section.svg', 
-                                        size= 22, 
-                                        func= self.add_section
-                                    ),
-                                    SimpleButton(
-                                        ft.icons.DRAG_HANDLE
-                                    ),
-                                ],
-                                height= 200,
-                                spacing= 0,
-                                tight= True,
-                            ), 
-                            bgcolor= GOLD, 
-                            border_radius=ft.border_radius.horizontal(20),
-                        ),
-                    ],
-                    alignment= ft.MainAxisAlignment.CENTER,
-                )
-            ], 
-            alignment= ft.MainAxisAlignment.END,
+    def __init__(self):
+        super().__init__(
         )
-    
+        self.content = ft.Container(
+            ft.Column(
+                controls=[
+                    SimpleButton(
+                        img= r'iconz\heading.svg', 
+                        size= 16, 
+                        func= lambda _: self.onclick('H')
+                    ),
+                    SimpleButton(
+                        img= r'iconz\heading-h2.svg', 
+                        size= 20, 
+                        func= lambda _: self.onclick('SH')
+                    ),
+                    SimpleButton(
+                        ft.Icons.TITLE, size= 14, 
+                        func= lambda _: self.onclick('T')
+                    ),
+                    SimpleButton(
+                        img= r'iconz\\new-section.svg', 
+                        size= 22, 
+                        # func= self.add_section
+                    ),
+                    SimpleButton(
+                        ft.Icons.DRAG_HANDLE
+                    ),
+                ],
+                height= 200,
+                spacing= 0,
+                tight= True,
+            ), 
+            bgcolor= GOLD, 
+            border_radius=ft.border_radius.horizontal(20),
+        )
+
     def onclick(self, typ):
-        self.pg.frame.controls.append(Editor(self.pg.frame, typ))
-        self.pg.frame.update()
+        parent : ft.Column = self.get_parent()
+        parent.editor.controls.append(
+            Editor(typ)
+        )
+        parent.editor.update()
     
-    def add_section(self, e):
-        self.sec.visible = True
-        self.sec.update()
+    # def add_section(self, e):
+    #     self.sec.visible = True
+    #     self.sec.update()
+
+    def get_parent(self):
+        return self.parent.parent
 
 class EditNoteView(ft.View):
     def __init__(self) -> None:
@@ -254,29 +276,37 @@ class EditNoteView(ft.View):
             horizontal_alignment= ft.CrossAxisAlignment.CENTER,
             bgcolor = BACKGROUND_COLOR,
             navigation_bar= Navbar(4),
+            padding= 0,
         )
         self.new_ndt = []
         self.head = 'Untitled Note'
+
+        self.panel = FormatPanel()
             
         self.content: ft.Column = ft.Column(
-            # height= 610,
-            # tight= True,
             expand= True,
             alignment= ft.MainAxisAlignment.CENTER,
+        )
+        self.editor = ft.Column(
+            expand= 5, 
+            tight= True,
+            scroll=ft.ScrollMode.AUTO, 
+            spacing= 2
         )
         self.controls = [
             ft.Stack(
                 controls=[
-                    self.content
-                ]
+                    ft.Container(
+                        content=self.content,
+                        margin= 10,
+                    ),
+                    self.panel
+                ],
+                expand= True,
+                alignment= ft.alignment.center_right
             )
         ]
-
-        
     
-    def onclick(self):
-        self.page.frame.controls.append(Editor())
-
     def header(self):
         self.tit = ft.Ref[ft.TextField]()
         cont = ft.Row([
@@ -301,11 +331,11 @@ class EditNoteView(ft.View):
     def onback(self, e: ft.ControlEvent):
         head = self.tit.current.value
         data = []
-        for i in self.frame.controls:
+        for i in self.editor.controls:
             if i.data == 'e':
                 data.append([
-                    i.content.controls[-1].value,
-                    i.content.controls[-1].data
+                    i.text_body.value,
+                    i.text_body.data
                 ])
             else:
                 data.append([
@@ -314,7 +344,7 @@ class EditNoteView(ft.View):
                     i.src, 
                     'S'
                 ])
-        # create_note(self.page, self.ids, head, data) # saves note
+        create_note(self.page, self.ids, head, data) # saves note
         self.page.go('/note')
 
     def did_mount(self):
@@ -329,16 +359,10 @@ class EditNoteView(ft.View):
                 self.head = note_prop[0]
                 self.new_ndt = note_prop[1]
             
-            editor = ft.Column(
-                expand= 5, 
-                tight= True,
-                scroll=ft.ScrollMode.AUTO, 
-                spacing= 2
-            )
             if len(self.new_ndt) != 0:
                 for *n, t in self.new_ndt:
                     if t != 'S':
-                        editor.controls.append(Editor(value=n[0], typ=t, delfunc= editor)) # add type later
+                        self.editor.controls.append(Editor(value=n[0], typ=t)) # add type later
                     else:
                         # editor.controls.append(
                         #     audiomark(
@@ -353,10 +377,10 @@ class EditNoteView(ft.View):
                         # )
                         pass
             else:
-                editor.controls.append(Editor(delfunc= editor))
-            self.content.controls += [
+                self.editor.controls.append(Editor())
+            self.content.controls = [
                 self.header(),
-                editor,
+                self.editor,
             ]
             self.update()
         else:
@@ -366,16 +390,5 @@ class EditNoteView(ft.View):
 
 #             v_Audio = sub.content.audio1
 #             sec = section_overlay(page, sp1, v_Audio)
-#             page.overlay.append(format_panel(sp1, sec))
 #             page.overlay.append(v_Audio)
 #             page.overlay.append(sec)
-#             page.views.append(
-#                 View(
-#                     route=f'/note/{troute.id}',
-#                     controls=[
-#                         sp1.build(),
-#                     ],
-#                     spacing= 26,
-#                 )
-#             )
-#         page.update()

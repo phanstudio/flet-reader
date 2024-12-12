@@ -1,52 +1,8 @@
 import flet as ft
-import shutil
 from Utility import *
-from user_controls import (BookProgressSheet)
-from pages import subpage2, loads
-import flet.canvas as cv
+from user_controls import BookProgressSheet
 from view import routes
 
-
-def checking(troute, page):
-    inf = page.client_storage.get(f'Book.{troute.id}')
-    ld = [[],[]]
-    if len(inf[1]) > 0:
-        if int(troute.num) in inf[1]:
-            for i in inf[1]:
-                if int(troute.num) == i:
-                    pat = os.path.normpath(f'Books/{troute.id}/sub/{i}.srt')
-                    ld = loads(os.path.join(ROOTPATH, pat))
-    return ld, inf
-
-# def main(page: pG) -> None:
-#     dpo = quick_note(List_Tile, page)
-#     sub = subpage2(page, dpo)
-#     dpol = sections_pg(List_Tile, page, sub.content) # note
-#     sub.content.nox = dpol
-#     # sub.content.audio1.src = 
-#     # whe src is added is when the song is loaded so and a try catch
-
-#         if troute.match('/lib/:id/:num'):
-#             page.overlay.append(Column([dpo], alignment=MainAxisAlignment.END)) # animate
-#             page.overlay.append(dpol)
-#             update_current(page, troute.id, troute.num)
-#             ld, inf = checking(troute, page)
-#             sub.content.load(troute.id, troute.num, inf[3], ld,
-#                              src=f'{inf[0]}/parts/{int(troute.num)*5}.mp3')
-#             sub.content.audio1.outside = None
-#             page.overlay.append(sub.content.audio1)
-            
-#             page.views.append(
-#                 View(
-#                     route=f'/lib/{troute.id}/{troute.num}',
-#                     controls=[sub,],
-#                     vertical_alignment= MainAxisAlignment.CENTER,
-#                     horizontal_alignment= CrossAxisAlignment.CENTER,
-#                     spacing= 26,
-#                 )
-#             )
-
-# from utility import LoadingView, defualt_theme, AlertControl, overlay
 
 def metadata(page: ft.Page):
     page.title = "BookReader"

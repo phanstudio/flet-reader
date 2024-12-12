@@ -97,7 +97,10 @@ class Chapters(ft.Container):
                 ),
                 padding= ft.padding.only(10), 
             ), 
-            on_click= lambda _: self.onclick()
+            on_click= lambda _: self.onclick(),
+            style= ft.ButtonStyle(
+                shape= ft.RoundedRectangleBorder(10),
+            )
         )
 
     def onclick(self):
@@ -142,21 +145,21 @@ class BookOverView(ft.View):
     def __init__(self) -> None:
         super().__init__(
             route= "/bookover",
-            horizontal_alignment= ft.CrossAxisAlignment.CENTER,
+            # horizontal_alignment= ft.CrossAxisAlignment.CENTER,
             bgcolor = BACKGROUND_COLOR,
             navigation_bar= Navbar(2),
+            floating_action_button= ft.FloatingActionButton(
+                "Continue",
+                width= 65,
+                height= 30,
+                # on_click=  # for open the last read
+            )
         )
 
         self.frame = ft.ListView(
-            expand= 5,
+            expand= True,
             spacing= 2,
         )
-        self.controls = [
-            self.header(),
-            self.info(),
-            ft.Text(f'{self.num} Parts'),
-            self.frame,
-        ]
     
     def did_mount(self):
         self.ids = self.page.session.get("BookId")
@@ -170,6 +173,14 @@ class BookOverView(ft.View):
                     self.frame.controls.append(Chapters(i, '05:00', self.ids, self.ndts[0][1:], self.ndts[1]))
                 else:
                     self.frame.controls.append(Chapters(i, self.ndts[4], self.ids, self.ndts[0][1:], self.ndts[1]))
+            
+            self.controls = [
+                self.header(),
+                self.info(),
+                ft.Text(f'{self.num} Part{"s"if self.num > 1 else ""}'),
+                self.frame,
+            ]
+
             self.update()
         else:
             self.page.go("/lib")
@@ -185,7 +196,7 @@ class BookOverView(ft.View):
             controls=[
                 ft.Image(
                     src, 
-                    # height= 130, 
+                    height= 130, 
                     width= 90,
                     border_radius= 5,
                     fit= ft.ImageFit.COVER,
@@ -195,7 +206,8 @@ class BookOverView(ft.View):
                         ft.Text(
                             self.ids.title(), 
                             size= 20,
-                            expand= True,
+                            max_lines= 2,
+                            overflow= ft.TextOverflow.ELLIPSIS,
                         ),
                         ft.Text(
                             f'Currently reading: {self.ndts[2]}'.title()
@@ -213,7 +225,6 @@ class BookOverView(ft.View):
                     expand= True,
                 ),
             ],
-            expand= True,
         )
         return r
 
@@ -247,11 +258,4 @@ class BookOverView(ft.View):
 
     def onback(self, e: ft.ControlEvent):
         self.page.go('/lib')
-
-#             page.overlay.append(
-#                     ft.ElevatedButton(text='Continue', bgcolor= GOLD, color= 'white', 
-#                                       style= ft.ButtonStyle(shape= ft.RoundedRectangleBorder(radius= 8),
-#                                                             padding= 18,),
-#                                on_click= lambda _: print('open'), bottom= 10, right= 10,
-#             ))
 

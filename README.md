@@ -31,6 +31,8 @@ Welcome to the Flet Book Reader App! This application is built using Flet, a Pyt
 
 Follow these steps to set up the Flet Book Reader App locally:
 
+- use python < 3.12 
+
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/your-username/flet-reader.git

@@ -1,7 +1,6 @@
 import flet as ft
 from Utility import *
-from user_controls import Note_frame, Library_frame, Reading, Library, Note, Navbar
-import pytweening as pytw
+from user_controls import Navbar, AudioPlayer, loads
 
 # class SectionsPg(ft.Container):
 #     def __init__(self, lts, audiof,):
@@ -240,90 +239,6 @@ import pytweening as pytw
 #         else:
 #             self.title.current.error_text = 'Add a title'
 #             self.update()
-
-# class sub_page3():
-#     def __init__(self, page, ids):
-#         self.page = page
-#         self.ids = ids
-#         self.ndts = page.client_storage.get(f'Book.{ids}')
-#         # print(self.ndts)
-                    
-#         self.content: Column = Column([], height= 610,
-#                                 # tight= True,
-#                                 # expand= True,
-#                                 alignment= MainAxisAlignment.CENTER
-#                                 )
-#         self.cont = Container(self.content, 
-#                                 # bgcolor= 'red',
-#                                 expand= True
-#                                 )
-
-#     def LIst_of_chap(self):
-#         self.frame = ft.ListView([], expand= 5,
-#                             spacing= 2
-#                             )
-#         return self.frame
-    
-#     def info(self):
-#         if len(self.ndts) == 6:
-#             src = self.ndts[5]
-#         else: src = 'defualt.png'
-#         src = f'covers/'+src
-#         r = Row([
-#             ft.Image(src, height= 130, width= 90,
-#                      border_radius= 5,
-#                      fit= ft.ImageFit.COVER),
-#             Column([
-#                 Text(
-#                     self.ids.title(), size= 20, width= 220,
-#                 ),
-#                 Text(
-#                     f'Currently readding: {self.ndts[2]}'.title()
-#                 ),
-#                 Text(
-#                     f'30% read'.title()
-#                 ),
-#                 readbar(GOLD, align= 'left', start= 30, height= 4),
-#             ])
-#         ])
-#         return r
-#         ...
-
-#     def header(self):
-#         self.tit = ft.Ref[ft.TextField]()
-#         cont = ft.Row([
-#             ft.IconButton(icon= ft.icons.CHEVRON_LEFT, icon_color= GOLD,
-#                 on_click= self.onback),
-#             ft.Row([
-#                 ft.IconButton(icon= ft.icons.DOWNLOAD, icon_color= GOLD,
-#                 on_click= lambda _: print('#')),
-#                 ft.IconButton(icon= ft.icons.MORE_VERT, icon_color= GOLD,
-#                 on_click= lambda _: print('#')),
-
-#             ]),
-#             ], alignment= ft.MainAxisAlignment.SPACE_BETWEEN)
-#         return cont
-
-#     def onback(self, e: ft.ControlEvent):
-#         self.page.go('/lib')
-
-#     def build(self):
-#         editor = self.LIst_of_chap()
-#         self.num = self.ndts[3]
-
-#         for i in range(self.num):
-#             if i != self.num -1:
-#                 editor.controls.append(Chapters(i, '05:00', self.ids, self.ndts[0][1:], self.ndts[1]))
-#             else:
-#                 editor.controls.append(Chapters(i, self.ndts[4], self.ids, self.ndts[0][1:], self.ndts[1]))
-
-
-#         self.content.controls += [self.header(),
-#             self.info(),
-#             ft.Text(f'{self.num} Parts'),
-#             editor,
-#             ]
-#         return self.cont
 
 # class Track(ft.GestureDetector):
 #     def __init__(self, 
@@ -575,29 +490,45 @@ class ViewBookView(ft.View):
             route= "/viewbook",
             horizontal_alignment= ft.CrossAxisAlignment.CENTER,
             bgcolor = BACKGROUND_COLOR,
-            navigation_bar= Navbar(4),
+            navigation_bar= Navbar(2),
         )
 
+    def did_mount(self):
+        self.book_id = self.page.session.get("BookId")
+        self.book_num = self.page.session.get("BookNumber")
+        if self.book_id and self.book_num is not None:
+            self.audioplayer = AudioPlayer()
+            self.controls = [
+                self.audioplayer
+            ]
+            subtitles, book = checking(self.book_id, self.book_num, self.page)
+            self.update()
+            self.audioplayer.load(
+                self.book_id,
+                self.book_num,
+                book["extra"], 
+                subtitles,
+                src=f'{book["path"]}/parts/{int(self.book_num)*5}.mp3'
+            )
+        else:
+            self.page.go("/lib")
+        return super().did_mount()
 
-
-#         if troute.match('/lib/:id/:num'):
-#             page.overlay.append(Column([dpo], alignment=MainAxisAlignment.END)) # animate
-#             page.overlay.append(dpol)
-#             update_current(page, troute.id, troute.num)
-#             ld, inf = checking(troute, page)
-#             sub.content.load(troute.id, troute.num, inf[3], ld,
-#                              src=f'{inf[0]}/parts/{int(troute.num)*5}.mp3')
-#             sub.content.audio1.outside = None
-#             page.overlay.append(sub.content.audio1)
-            
-#             page.views.append(
-#                 View(
-#                     route=f'/lib/{troute.id}/{troute.num}',
-#                     controls=[sub,],
-#                     vertical_alignment= MainAxisAlignment.CENTER,
-#                     horizontal_alignment= CrossAxisAlignment.CENTER,
-#                     spacing= 26,
-#                 )
-#             )
-    
-
+def checking(_id, _num, page):
+    book = page.client_storage.get(f'Book.{_id}')
+    new_book = {
+        "path": book[0],
+        "subtitles_number": book[1],
+        "extra": book[2],
+        "amount_of_sub": book[3],
+        "duration": book[4],
+        "image": book[5],
+    }
+    subtities = [[],[]]
+    if len(book[1]) > 0:
+        if int(_num) in book[1]:
+            for i in book[1]:
+                if int(_num) == i:
+                    pat = os.path.normpath(f'Books/{_id}/sub/{i}.srt')
+                    subtities = loads(os.path.join(ROOTPATH, pat))
+    return subtities, new_book

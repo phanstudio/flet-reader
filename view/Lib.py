@@ -1,6 +1,6 @@
 import flet as ft
 from Utility import *
-from user_controls import Note_frame, Library_frame, Reading, Library, Note, Navbar
+from user_controls import Library_frame, Navbar
 import pytweening as pytw
 
 class LibView(ft.View):
@@ -65,15 +65,31 @@ class LibView(ft.View):
         return {'ids':ids, 'src':src, 'val': val, 'per': per, 'time': time}
 
 # if page.route == '/lib':
-#             v_Audio = sub.content.audio1
-#             page.overlay.append(v_Audio)
-#             page.overlay.append(Column([Container(
-#                 Row([IconButton(ft.icons.CHEVRON_LEFT, 
-#                                 on_click= lambda _: page.go(f'/')),
-#                      Reading(lambda e: play_pause(e, v_Audio)),
-#                 IconButton(ft.icons.MORE_VERT, on_click=
-#                            lambda _:  delete(lib_page)
-#                            ),
-#                 ], expand= True),
-#                 padding= 10, bgcolor= ft.Colors.BACKGROUND)
-#                 ], alignment= MainAxisAlignment.START))
+#     v_Audio = sub.content.audio1
+#     page.overlay.append(v_Audio)
+#     page.overlay.append(
+#         Column(
+#             [
+#                 Container(
+#                     Row(
+#                         [
+#                             IconButton(
+#                                 ft.icons.CHEVRON_LEFT, 
+#                                 on_click= lambda _: page.go(f'/')
+#                             ),
+#                             Reading(
+#                                 lambda e: play_pause(e, v_Audio)
+#                             ),
+#                             IconButton(ft.icons.MORE_VERT, on_click=
+#                                 lambda _:  delete(lib_page)
+#                             ),
+#                         ], 
+#                         expand= True
+#                     ),
+#                     padding= 10, 
+#                     bgcolor= ft.Colors.BACKGROUND
+#                 )
+#             ], 
+#             alignment= MainAxisAlignment.START
+#         )
+#     )

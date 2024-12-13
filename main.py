@@ -3,6 +3,7 @@ from Utility import *
 from user_controls import BookProgressSheet
 from view import routes
 
+# delete ffmpeg
 
 def metadata(page: ft.Page):
     page.title = "BookReader"
@@ -27,7 +28,7 @@ def metadata(page: ft.Page):
 #     )
 
 def add_overlays(page):
-    page.overlay.append(ft.SnackBar(ft.Text("love"), duration= 2000))
+    page.overlay.append(ft.SnackBar(ft.Text("love"), duration= 1000))
     page.overlay.append(BookProgressSheet(1000)) # remove and normall in add, and delete in add
     page.overlay.append(ft.FilePicker())
     # page.overlay.append(

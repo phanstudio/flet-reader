@@ -28,7 +28,7 @@ def metadata(page: ft.Page):
 
 def add_overlays(page):
     page.overlay.append(ft.SnackBar(ft.Text("love"), duration= 2000))
-    page.overlay.append(BookProgressSheet(1000))
+    page.overlay.append(BookProgressSheet(1000)) # remove and normall in add, and delete in add
     page.overlay.append(ft.FilePicker())
     # page.overlay.append(
     #     Column(
@@ -47,10 +47,7 @@ def main(page: ft.Page): # add security
     # set_theme(page)
     # overlays = overlay(page)
     def route_change(e: ft.RouteChangeEvent) -> None:
-        troute = ft.TemplateRoute(page.route)
-        current_view = [i for i in page.views if page.route == i.route]
-        if any(current_view): page.views.remove(current_view[0])
-        if page.route in ['/']: page.views.clear()
+        page.views.clear()
         page.views.append((
             routes[
                 page.route

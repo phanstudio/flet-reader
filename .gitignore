@@ -202,7 +202,7 @@ cscope.out
 cscope.in.out
 cscope.po.out
 
-assets\Books
+assets/Books/
 
 # Vim
 *.swo

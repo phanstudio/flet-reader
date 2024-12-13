@@ -1,7 +1,5 @@
 import subprocess
 import os
-from .constants import ROOTPATH
-from mutagen.mp3 import MP3
 
 def split_audio_ffmpeg(input_file, chunk_duration=300, output_dir=None, ffmpeg_path=None):
     """
@@ -56,10 +54,14 @@ def split_audio_ffmpeg(input_file, chunk_duration=300, output_dir=None, ffmpeg_p
         print("Current PATH:", os.environ.get('PATH', 'No PATH set'))
         print("Specified FFmpeg path:", ffmpeg_path or "Not specified")
 
-def five_min_splitter(file, folder): # find the ffmpeg file
-    custom_ffmpeg_path = None#f"{ROOTPATH}/models/ffmpeg" #/flet-reader\assets
-    split_audio_ffmpeg(file, ffmpeg_path=custom_ffmpeg_path, output_dir= folder)
-
-def get_duration(file):
-    audio = MP3(file)
-    return audio.info.length
+# Example usage
+if __name__ == "__main__":
+    # Example of using a custom FFmpeg path
+    custom_ffmpeg_path = "/path/to/your/custom/ffmpeg/folder"  # Replace with your actual path
+    input_audio_file = "your_large_audio_file.mp3"  # Replace with your audio file path
+    
+    # Option 1: Use custom FFmpeg path
+    split_audio_ffmpeg(input_audio_file, ffmpeg_path=custom_ffmpeg_path)
+    
+    # Option 2: Use system FFmpeg (no path specified)
+    # split_audio_ffmpeg(input_audio_file)

@@ -2,7 +2,6 @@ import flet as ft
 from Utility import *
 from user_controls import Navbar, ListTile, BookProgressSheet
 import shutil
-from textwrap import TextWrapper
 import os
 
 def on_dialog_result(e: ft.FilePickerResultEvent): # needs to be async
@@ -26,9 +25,10 @@ def on_dialog_result(e: ft.FilePickerResultEvent): # needs to be async
     new_book = ListTile(name)
 
     # Retrieve and update book history
-    book_history = page.client_storage.get('Book.hist')
+    book_history = page.client_storage.get('Book.hist') 
     if not book_history : book_history = []
-    if name not in book_history:
+
+    if name not in book_history: # adds to history
         book_history.append(name)
         page.client_storage.set('Book.hist', book_history)
         
@@ -40,7 +40,6 @@ def on_dialog_result(e: ft.FilePickerResultEvent): # needs to be async
         Book_sheet.list_body.controls[index].done('d')
         Book_sheet.list_body.controls[index].update()
         print(Book_sheet.list_body.controls[index])
-    
     Book_sheet.popup()
 
     # Ensure necessary directories exist
@@ -50,7 +49,6 @@ def on_dialog_result(e: ft.FilePickerResultEvent): # needs to be async
 
     # Extract details from the book
     total, duration = extraction(old_path, os.path.join(path, 'parts'))
-
     # Load book image
     img = loader(old_path, name)
 

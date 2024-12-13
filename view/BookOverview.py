@@ -104,8 +104,8 @@ class Chapters(ft.Container):
         )
 
     def onclick(self):
-        self.page.go(f'/viewbook')
         self.page.session.set("BookNumber", self.num)
+        self.page.go(f'/viewbook')
 
     def hov(self, e: ft.ControlEvent):
         if e.data == 'true':
@@ -152,7 +152,7 @@ class BookOverView(ft.View):
                 "Continue",
                 width= 65,
                 height= 30,
-                # on_click=  # for open the last read
+                on_click= lambda _: self.continue_book()# for open the last read
             )
         )
 
@@ -165,6 +165,7 @@ class BookOverView(ft.View):
         self.ids = self.page.session.get("BookId")
         if self.ids:
             self.ndts = self.page.client_storage.get(f'Book.{self.ids}')
+            # use checking
             
             self.num = self.ndts[3]
 
@@ -185,7 +186,11 @@ class BookOverView(ft.View):
         else:
             self.page.go("/lib")
         return super().did_mount()
-    
+
+    def continue_book(self):
+        self.page.session.set("BookNumber", self.ndts[2])
+        self.page.go(f'/viewbook')
+
     def info(self):
         if len(self.ndts) == 6:
             src = self.ndts[5]

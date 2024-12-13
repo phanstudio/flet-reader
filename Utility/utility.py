@@ -1,24 +1,7 @@
 import flet as ft
 from flet import Page as pG
-import uuid, os, time
-from .split_Ter import five_min_splitter, AudioSegment
-from.img_loader import loader
-from .custom_classes import overlay
-from .constants import ROOTPATH, GOLD, BOLD
-
-# Test Data
-dt = [[2, 12,'part 1',20, '03:00', 'Tale of the over powered hero'],
-        [4, 13,'part 12',35, '05:06', 'Villain story'],
-        [40, 11,'part 7',80, '01:53', 'Night books'],
-        [89, 10,'part 4',0, '02:56', 'Soaring sky'],
-        [69, 14,'part 20',40, '13:46', 'Revered insanity'],
-        [1, 9,'part 5',60, '03:26', 'Chuck'],
-        [1, 9,'part 5',60, '03:26', 'Chuck missing 1 required positional argument'],]
-ndt = [['Queen of hearts', 'This section focus mustly on elizabet', 9],
-        ['Kindness', 'The stupidity it brings', 20],
-        ['Love', 'The greatness, before the fall it brings', 12],
-        ['Loving you with all my heart', 'The greatness, before the fall it brings', 16],]
-
+import uuid, os
+from .split_Ter import five_min_splitter, get_duration
 
 def per_clamp(n, minn = 274.4, maxn= 1530.4):
     per = ((n - minn)/(maxn-minn))*100
@@ -33,9 +16,11 @@ def p221(p2, page:pG):
         p2.update()
 
 def change_theme(page:pG) -> None:
-    page.theme_mode = (ft.ThemeMode.LIGHT 
-                       if page.theme_mode == ft.ThemeMode.DARK 
-                       else ft.ThemeMode.DARK)
+    page.theme_mode = (
+        ft.ThemeMode.LIGHT 
+        if page.theme_mode == ft.ThemeMode.DARK 
+        else ft.ThemeMode.DARK
+    )
     page.update()
 
 def create_note(page: pG, num =1, head='', body = [['','H'],]):
@@ -86,9 +71,9 @@ def convertminsec(millis):
 
 def extraction(old_path, new_path):
     five_min_splitter(old_path, new_path)
-    newp = os.listdir(new_path)
-    total = len(newp)
-    dur = round(AudioSegment.from_mp3(new_path+'/'+newp[-1]).duration_seconds)
+    chunk_list = sorted([int(x.replace(".mp3", "")) for x in os.listdir(new_path)]) 
+    total = len(chunk_list)
+    dur = round(get_duration(f"{new_path}/{chunk_list[-1]}.mp3"))
     seconds = dur%60
     minute = dur//60
     seconds_str = f"0{seconds}" if seconds < 10 else f"{seconds}"
@@ -96,13 +81,6 @@ def extraction(old_path, new_path):
     duration = f'{minute_str}:{seconds_str}'
 
     return total, duration
-
-def update_current(page:pG, name, num):
-    # print(name, num)
-    # page.client_storage.set('book.current', 
-    #                         [name, num]
-    #                         )
-    ...
 
 def delete(lib):
     if lib.grid1.controls[0].dels.current.visible != True:
@@ -121,4 +99,3 @@ def play_pause(e, v):
     else:
         v.outside = None
         v.pause()
-

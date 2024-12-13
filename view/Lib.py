@@ -12,8 +12,6 @@ class LibView(ft.View):
             navigation_bar= Navbar(2),
         )
 
-        self.dt = dt
-        self.ndt = ndt
         self.grid1 = ft.GridView( 
             height= 550,
             # expand= 1,
@@ -27,9 +25,9 @@ class LibView(ft.View):
             child_aspect_ratio= 0.80,#0.54,#0.38,
         )
         self.defualt = ft.Image(
-                '/covers/9.png',
-                expand= True,
-            )
+            '/covers/9.png',
+            expand= True,
+        )
         self.controls=[
             self.defualt,
             ft.Container(

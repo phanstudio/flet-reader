@@ -80,10 +80,6 @@ class MainNote(ft.TextButton):
             )
             self.update()
 
-# page.overlay.append(Column([Container(Reading(), 
-#                                         padding= 10, margin= margin.only(top= 0)) #30
-#                                         ], alignment= MainAxisAlignment.START))
-
 class NoteView(ft.View):
     def __init__(self) -> None:
         super().__init__(

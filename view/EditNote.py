@@ -309,23 +309,31 @@ class EditNoteView(ft.View):
     
     def header(self):
         self.tit = ft.Ref[ft.TextField]()
-        cont = ft.Row([
-            ft.IconButton(icon= ft.Icons.CHEVRON_LEFT, icon_color= GOLD,
-                on_click= self.onback),
-            ft.TextField(value=self.head, 
-                      ref = self.tit,
-                      dense= True,
-                      width = 200,
-                      multiline= True,
-                      border= ft.InputBorder.NONE,
-                      text_align= 'center',
-                      text_style= ft.TextStyle(
-                            weight=  BOLD,
-                        ),
+        cont = ft.Row(
+            controls=[
+                ft.IconButton(icon= ft.Icons.CHEVRON_LEFT, icon_color= GOLD,
+                    on_click= self.onback),
+                ft.TextField(
+                    value=self.head, 
+                    ref = self.tit,
+                    dense= True,
+                    width = 200,
+                    multiline= True,
+                    border= ft.InputBorder.NONE,
+                    text_align= 'center',
+                    text_style= ft.TextStyle(
+                        weight=  BOLD,
                     ),
-            ft.IconButton(icon= ft.Icons.HELP, icon_color= GOLD,
-                on_click= lambda _: print('#')),
-            ], alignment= ft.MainAxisAlignment.SPACE_BETWEEN)
+                    collapsed= True,
+                ),
+                ft.IconButton(
+                    icon= ft.Icons.HELP, 
+                    icon_color= GOLD,
+                    on_click= lambda _: print('#')
+                ),
+            ], 
+            alignment= ft.MainAxisAlignment.SPACE_BETWEEN
+        )
         return cont
     
     def onback(self, e: ft.ControlEvent):

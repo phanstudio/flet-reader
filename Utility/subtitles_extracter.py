@@ -2,7 +2,7 @@ import subprocess
 import sys, os
 
 from vosk import Model, KaldiRecognizer, SetLogLevel
-from Utility import ROOTPATH
+from .constants import ROOTPATH
 
 def exctractors_srt(url, num, nam):
     SAMPLE_RATE = 44100

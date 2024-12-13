@@ -203,6 +203,7 @@ cscope.in.out
 cscope.po.out
 
 assets/Books/
+assets/models/ffmpeg/
 
 # Vim
 *.swo

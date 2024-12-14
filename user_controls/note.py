@@ -76,7 +76,8 @@ class Note_frame(ft.Container):
     def onclick(self, e: ControlEvent):
         self.frame.scale = 1.01
         e.control.update()
-        self.page.go(f'/note/{self.id}')
+        self.page.session.set("NoteId", self.id)
+        self.page.go(f'/editnote')
 
     def tags(self, text, color):
         color = color[1:]

@@ -10,11 +10,6 @@ def per_clamp(n, minn = 274.4, maxn= 1530.4):
 def cnr(ids, src, val, per, time, text):
     return {'ids':ids, 'src':src, 'val': val, 'per': per, 'time': time, 'text': text}
 
-def p221(p2, page:pG):
-    p2.onchange(per_clamp(page.window.width, 282.4))
-    if page.route == '/lib':
-        p2.update()
-
 def change_theme(page:pG) -> None:
     page.theme_mode = (
         ft.ThemeMode.LIGHT 

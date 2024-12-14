@@ -88,13 +88,15 @@ class AudioManager(ft.Audio):
         self.clamp_end = None
         self.clamp_start = 0
         self.section_access = None
+        self.duration = None
+        self.nextplay = None
 
     def audio_loaded(self, e):
-        duration = self.get_duration()
-        self._set_indicator(0, duration)
+        self.duration = self.get_duration()
+        self._set_indicator(0, self.duration)
         if self.play_function:
-            self.play_function(True) # changes the button to play
-        self.track.audio_duration = duration
+            self.play_function(True if not self.auto else False) # changes the button to play
+        self.track.audio_duration = self.duration
         self.text = -1 # for subtitles
         self.page.update()
         if self.auto: # fix
@@ -133,15 +135,11 @@ class AudioManager(ft.Audio):
     def change_position(self, e:ft.ControlEvent):
         if self.outside == None:
             if self.clamp_end != None:
-                if self.track.audio_duration != None and\
+                if self.duration != None and\
                     not int(self.position) >= (self.clamp_end):
                     self.position = int(e.data)
                     self._set_indicator(self.position)
-                    self.track.content.content.shapes[1].width = (
-                        self.position
-                        / self.track.audio_duration
-                        * self.track.track_width
-                    )
+                    self.update_track()
                 else:
                     self.pause()
                     self._set_indicator(self.clamp_start, bookmark= True)
@@ -149,22 +147,31 @@ class AudioManager(ft.Audio):
                         self.section_access.set_playpause(False)
                 self.page.update()
             else:
-                if self.track.audio_duration != None:
+                if self.duration != None:
                     self.position = int(e.data)
                     self._set_indicator(self.position)
-                    self.track.content.content.shapes[1].width = (
-                        self.position
-                        / self.track.audio_duration
-                        * self.track.track_width
-                    )
-                    self.track.update()
+                    self.update_track()
         else:
             if not isinstance(self.outside, int):
                 self.audio1.outside(e)
 
     def state_changed(self, e):
         if e.data == "completed":
-            self.play_function(True)
+            if self.play_function:
+                self.play_function(True)
+            if self.nextplay:
+                self.nextplay()
+            self.auto= True
+
+    def update_track(self):
+        # print(self.track)
+        if self.track is not None: # problem
+            self.track.content.content.shapes[1].width = (
+                self.position
+                / self.track.audio_duration
+                * self.track.track_width
+            )
+            self.track.update()
 
     @staticmethod
     def load(url, page:ft.Page, load_func= None):
@@ -246,14 +253,14 @@ class AudioPlayer(ft.Column):
             # on_click=self.play,
             ),
             self.buttom_button(
-            ico=ft.Icons.LIST_ALT,
-            txt= 'chapter',
-            onc = lambda _: self.page.go('/bookover'),
+                ico=ft.Icons.LIST_ALT,
+                txt= 'Library',
+                onc = lambda _: self.page.go('/lib'),
             ),
             self.buttom_button(
-            ico=ft.Icons.NOTE_ALT,
-            txt= 'q-note',
-            onc= lambda _: self.open_quicknote(),
+                ico=ft.Icons.NOTE_ALT,
+                txt= 'q-note',
+                onc= lambda _: self.open_quicknote(),
             ),
         ], alignment= ft.MainAxisAlignment.SPACE_BETWEEN))
 
@@ -320,10 +327,14 @@ class AudioPlayer(ft.Column):
             ], 
             alignment= ft.MainAxisAlignment.SPACE_BETWEEN
         )
-        self.textt = ft.ListView(expand=True, spacing= 5,
-                                    auto_scroll= True)
+        self.textt = ft.ListView(
+            expand=True, 
+            spacing= 5,
+            auto_scroll= True,
+        )
         self.text = -1
         self.auto = False
+        self.reloading = False
         
         self.controls = [
             self.title,
@@ -353,7 +364,7 @@ class AudioPlayer(ft.Column):
     def back_but(self):
         self.textt.controls.clear()
         self.update()
-        self.page.go('/lib')
+        self.page.go('/bookover')
 
     def open_section(self, e):
         body = self.parent
@@ -421,6 +432,9 @@ class AudioPlayer(ft.Column):
             # self.page.go(f'/lib{self.num}/{self.nx-1}')
     
     def move(self, operation):
+        # problem with next and back in moving
+        self.textt.controls.clear()
+        self.reloading = True
         _id = self.page.session.get("BookId")
         num = None
         
@@ -525,27 +539,46 @@ class AudioPlayer(ft.Column):
         self.audio1.seek(position)
         self.page.update()
 
-    def mod_list(self): # subtitle # fix
+    def mod_list(self):
+        """
+        Modify the list of text controls dynamically, adjusting size, color, and background.
+        
+        Key improvements:
+        - More robust list management
+        - Clearer color and styling logic
+        - Simplified list manipulation
+        """
         list_len = len(self.textt.controls)
+        
+        # Reduce size and opacity of the previous last item if list is not empty
         if list_len > 0:
-            self.textt.controls[-1].size -= 1
-            self.textt.controls[-1].color= ft.Colors.with_opacity(0.7, ft.Colors.INVERSE_SURFACE)
-            self.textt.controls[-1].bgcolor= None
-        if list_len < self.text+1:
-            for i in self.src[1][list_len:self.text+1]:
-                self.textt.controls.append(
-                    ft.Text(
-                        i, 
-                        size= 13,
-                        color= ft.Colors.with_opacity(0.7, ft.Colors.INVERSE_SURFACE)
-                    )
-                )
-        else:
-            for i in range(list_len - (self.text+1)):
-                self.textt.controls.pop()
-        self.textt.controls[-1].size += 1
-        self.textt.controls[-1].color= ft.Colors.with_opacity(1, ft.Colors.INVERSE_SURFACE)
-        self.textt.controls[-1].bgcolor= ft.Colors.with_opacity(0.2, GOLD)
+            last_control = self.textt.controls[-1]
+            last_control.size -= 1
+            last_control.color = ft.Colors.with_opacity(0.7, ft.Colors.INVERSE_SURFACE)
+            last_control.bgcolor = None
+        
+        # Add new controls if the list is smaller than the target length
+        if list_len < self.text + 1:
+            new_controls = [
+                ft.Text(
+                    text, 
+                    size=13,
+                    color=ft.Colors.with_opacity(0.7, ft.Colors.INVERSE_SURFACE)
+                ) 
+                for text in self.src[1][list_len:self.text+1]
+            ]
+            self.textt.controls.extend(new_controls)
+        
+        # Remove excess controls if list is too long
+        elif list_len > self.text + 1:
+            del self.textt.controls[self.text + 1:]
+        
+        # Highlight the new last control
+        if self.textt.controls:
+            new_last_control = self.textt.controls[-1]
+            new_last_control.size += 1
+            new_last_control.color = ft.Colors.with_opacity(1, ft.Colors.INVERSE_SURFACE)
+            new_last_control.bgcolor = ft.Colors.with_opacity(0.2, GOLD)
 
     def did_mount(self):
         self.overlays = overlay(self.page)
@@ -556,8 +589,17 @@ class AudioPlayer(ft.Column):
         self.audio1.track = self.track_canvas
         self.audio1.play_function = self.set_play_pause
         self.audio1.set_indicator = self.set_indictors
+        self.audio1.nextplay = lambda : self.next("")
         self.track_canvas.find_position(self.track_canvas.stored_e)
         self.set_play_pause(True)
+    
+    def _unload_track(self, audiomanager): # create a way to reload the tracks
+        self.audio1 :AudioManager = audiomanager
+        self.audio1.track = None
+        self.audio1.play_function = None
+        self.audio1.set_indicator = None
+        self.audio1.nextplay = None
+        self.page.update()
 
     def set_indictors(self, indicator, bookmark=False):
         """
@@ -576,7 +618,12 @@ class AudioPlayer(ft.Column):
 
         if self.track_canvas.audio_duration != None:
             v = self.audio1.position/1000
+            
             pos = check(v, self.src[0])
+            if self.reloading:
+                self.reloading = False
+                pos = -1
+            
             if pos != None:
                 if self.text != pos:
                     self.text = pos
@@ -587,13 +634,6 @@ class AudioPlayer(ft.Column):
         self.play_button.visible = play
         self.pause_button.visible = (not play) if pause == None else pause
         self.update()
-
-    def _unload_track(self, audiomanager): # create a way to reload the tracks
-        self.audio1 :AudioManager = audiomanager
-        self.audio1.track = None
-        self.audio1.play_function = None
-        self.audio1.set_indicator = None
-        self.page.update()
 
     def will_unmount(self):
         AudioManager.unload(self.page, self._unload_track)

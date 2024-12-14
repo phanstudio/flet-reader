@@ -645,6 +645,7 @@ class ViewBookView(ft.View):
                 content=self.audioplayer,
                 margin= 10,
             )
+            # check if the song is new first
             player_container.open_overlays = self.open_overlays
             self.quicknote = QuickNote()
             self.section = BookMarkSection()

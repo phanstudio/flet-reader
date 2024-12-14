@@ -13,7 +13,7 @@ class Navbar(ft.NavigationBar):
                 ft.NavigationBarDestination('Home', ft.Icons.HOME_ROUNDED, data= '/'),
                 ft.NavigationBarDestination('Add', ft.Icons.ADD_BOX, data= '/add'),
                 ft.NavigationBarDestination('Lib', ft.Icons.LOCAL_LIBRARY_ROUNDED, data= '/lib'),
-                ft.NavigationBarDestination('Section', ft.Icons.BOOK, data= '/section'),
+                # ft.NavigationBarDestination('Section', ft.Icons.BOOK, data= '/section'),
                 ft.NavigationBarDestination('Note', ft.Icons.EDIT_NOTE, data= '/note'),
             ],
             on_change= self.onchange,

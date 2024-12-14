@@ -1,6 +1,5 @@
 import subprocess
-import sys, os
-
+import os
 from vosk import Model, KaldiRecognizer, SetLogLevel
 from .constants import ROOTPATH
 
@@ -12,10 +11,22 @@ def exctractors_srt(url, num, nam):
     rec = KaldiRecognizer(model, SAMPLE_RATE)
     rec.SetWords(True)
 
-    with subprocess.Popen(["ffmpeg", "-loglevel", "quiet", "-i",
-                                url,
-                                "-ar", str(SAMPLE_RATE) , "-ac", "1", "-f", "s16le", "-"],
-                                stdout=subprocess.PIPE).stdout as stream:
+    with subprocess.Popen(
+        [
+            "ffmpeg", 
+            "-loglevel", 
+            "quiet", 
+            "-i",
+            url,
+            "-ar", 
+            str(SAMPLE_RATE) , 
+            "-ac", 
+            "1", 
+            "-f", 
+            "s16le", 
+            "-",
+        ],
+        stdout=subprocess.PIPE).stdout as stream:
 
         
         # writing the string to a new file

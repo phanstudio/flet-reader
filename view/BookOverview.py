@@ -1,6 +1,7 @@
 import flet as ft
 from Utility import *
 from user_controls import Navbar, readbar
+import shutil
 
 class Chapters(ft.Container):
     def __init__(self, num, tim, ids, uls, sub):
@@ -12,7 +13,7 @@ class Chapters(ft.Container):
         self.down_bd = ft.Ref[ft.IconButton]()
         self.ids = ids
         self.num = num
-        self.uls = os.path.normpath(f'{uls}/parts/{num*5}.mp3')
+        self.uls = os.path.normpath(f'{uls}/parts/{num}.mp3')
         if self.num not in sub:
             self.pro = 'n'
         else:
@@ -21,7 +22,6 @@ class Chapters(ft.Container):
             self.prog = [True, False, False]
         else:
             self.prog = [False, False, True]
-
 
         self.content = ft.IconButton(
             ref= self.down_bd, 
@@ -60,7 +60,7 @@ class Chapters(ft.Container):
                                                     size=20
                                                 ),
                                                 ft.Icon(
-                                                    ft.Icons.DOWNLOAD_DONE_ROUNDED, 
+                                                    ft.Icons.DELETE, 
                                                     visible= self.prog[2],
                                                     ref= self.down_d
                                                 ),
@@ -100,7 +100,7 @@ class Chapters(ft.Container):
             on_click= lambda _: self.onclick(),
             style= ft.ButtonStyle(
                 shape= ft.RoundedRectangleBorder(10),
-            )
+            ),
         )
 
     def onclick(self):
@@ -113,22 +113,52 @@ class Chapters(ft.Container):
             e.control.bgcolor = ft.Colors.with_opacity(0.1, 
                                         ft.Colors.INVERSE_SURFACE)
         else:
-            self.down_bd.current.on_click = lambda _: self.page.go(f'/lib/{self.ids}/{self.num}')
+            self.down_bd.current.on_click = lambda _: self.onclick()
             e.control.bgcolor = None
         self.update()
 
     def download_sub(self, e):
-        if self.pro == 'n':
-            self.down_m.current.visible = False
-            self.down_b.current.visible = True
-            self.down_n.current.visible = True
-            self.update()
-            self.download()
-            self.down_m.current.visible = False
-            self.down_b.current.visible = False
-            self.down_n.current.visible = False
-            self.down_d.current.visible = True
-            self.update()
+        if self.pro == 'n': # and try clause
+            try:
+                self.change_icons("load")
+                self.update()
+                self.download()
+                self.change_icons("delete")
+                self.update()
+                self.pro = "l"
+            except:
+                self.change_icons("defualt")
+        else:
+            self.remove_sub()
+            self.change_icons("defualt")
+            self.pro = "n"
+    
+    def change_icons(self, value):
+        """
+        value: [defualt, load, delete]
+        """
+        # together load
+        self.down_b.current.visible = False
+        self.down_n.current.visible = False
+
+        # default
+        self.down_m.current.visible = False
+        
+        # delete
+        self.down_d.current.visible = False
+
+        match value:
+            case "defualt":
+                self.down_m.current.visible = True
+            case "load":
+                self.down_b.current.visible = True
+                self.down_n.current.visible = True
+            case "delete":
+                self.down_d.current.visible = True
+            case _:
+                raise ValueError("not an case [defualt, load, delete]")
+        
+        self.update()
 
     def download(self):
         exctractors_srt(nam= self.ids, num= self.num, 
@@ -138,10 +168,21 @@ class Chapters(ft.Container):
         if self.num not in info[1]:
             info[1].append(self.num)
         
-        self.page.client_storage.set(f'Book.{self.ids}', 
-                            info)
+        self.page.client_storage.set(f'Book.{self.ids}', info)
 
-class BookOverView(ft.View):
+    def remove_sub(self):
+        info = self.page.client_storage.get(f'Book.{self.ids}')
+        
+        if self.num in info[1]:
+            info[1].remove(self.num)
+
+        book_path = os.path.join(ROOTPATH,'Books', f'{self.ids}', "sub", f'{self.num}.srt')
+        if os.path.exists(book_path):
+            os.remove(book_path)
+        
+        self.page.client_storage.set(f'Book.{self.ids}', info)
+
+class BookOverView(ft.View): # download all creates a loading bar
     def __init__(self) -> None:
         super().__init__(
             route= "/bookover",
@@ -197,6 +238,7 @@ class BookOverView(ft.View):
         else: src = 'defualt.jpg'
         src = 'defualt.jpg'
         src = f'covers/'+src
+        read_percent = round((int(self.ndts[2])/int(self.ndts[3]))*100)
         r = ft.Row(
             controls=[
                 ft.Image(
@@ -218,12 +260,12 @@ class BookOverView(ft.View):
                             f'Currently reading: {self.ndts[2]}'.title()
                         ),
                         ft.Text(
-                            f'30% read'.title()
+                            f'{read_percent}% read'.title()
                         ),
                         readbar(
                             GOLD, 
                             align= 'left', 
-                            start= 30, 
+                            start= read_percent, 
                             height= 4
                         ),
                     ],
@@ -245,12 +287,12 @@ class BookOverView(ft.View):
                 ft.Row(
                     controls=[
                         ft.IconButton(
-                            icon= ft.Icons.DOWNLOAD, 
+                            icon= ft.Icons.CLOUD_DOWNLOAD_ROUNDED, 
                             icon_color= GOLD,
-                            on_click= lambda _: print('#')
+                            on_click= lambda _: print('#')# downlaod all
                         ),
                         ft.IconButton(
-                            icon= ft.Icons.MORE_VERT, 
+                            icon= ft.Icons.DELETE_FOREVER, 
                             icon_color= GOLD,
                             on_click= lambda _: print('#')
                         ),
@@ -264,3 +306,16 @@ class BookOverView(ft.View):
     def onback(self, e: ft.ControlEvent):
         self.page.go('/lib')
 
+    def delete_subs(self):
+        info = self.page.client_storage.get(f'Book.{self.ids}')
+        
+        info[1].clear()
+
+        # delete subs
+        # book_path = os.path.join(ROOTPATH,'Books', f'{self.ids}', "sub", f'{self.num}.srt')
+        # if os.path.exists(book_path):
+        #     os.remove(book_path)
+        # for i in self.frame.controls:
+        #     i.change_icons(0)
+        
+        # self.page.client_storage.set(f'Book.{self.ids}', info)

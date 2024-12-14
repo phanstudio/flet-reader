@@ -3,9 +3,14 @@ from Utility import *
 from user_controls import Navbar
 from textwrap import shorten
 
-class MainNote(ft.TextButton):
+class MainNote(ft.Button):
     def __init__(self, tit, subt, n=0, m= ['learning'], pg= ''):
-        super().__init__()
+        super().__init__(
+            style=ft.ButtonStyle(
+                shape= ft.RoundedRectangleBorder(5),
+                padding= 5,
+            )
+        )
         self.page = pg
         short = shorten(subt[0], 39, placeholder='..')
         short_title = shorten(tit, 20, placeholder='..')
@@ -50,7 +55,7 @@ class MainNote(ft.TextButton):
             spacing= 0
         )
         
-        self.style = ft.ButtonStyle(padding= ft.padding.symmetric(0,0))
+        # self.style = ft.ButtonStyle(padding= ft.padding.symmetric(0,0))
         self.on_click = self.onclick
         self.data = n
 
@@ -94,7 +99,7 @@ class NoteView(ft.View):
 
         self.grid2 = ft.ListView(
             expand= True,
-            spacing= 0,
+            spacing= 5,
             padding= 0
         )
 

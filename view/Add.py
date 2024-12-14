@@ -1,75 +1,10 @@
 import flet as ft
 from Utility import *
-from user_controls import Navbar, ListTile, BookProgressSheet
+from user_controls import Navbar
 import shutil
 import os
 
-# def on_dialog_result(e: ft.FilePickerResultEvent, ): # needs to be async
-#     if e.files is None:
-#         return  # Exit early if no files are selected
-    
-#     page = e.page
-#     overlays = overlay(page)
-#     Book_sheet: BookProgressSheet = overlays.bookprogresssheet
-
-#     Book_sheet.visible = True
-#     Book_sheet.update()  # Show the progress sheet
-#     old_path = e.files[0].path
-#     _, tail = os.path.split(old_path)
-#     name = tail.split('.')[0]
-
-#     path = os.path.join(ROOTPATH, 'Books', name)
-#     book_path = f'/Books/{name}'
-#     subtitle = []
-#     current = 0
-#     new_book = ListTile(name)
-
-#     # Retrieve and update book history
-#     book_history = page.client_storage.get('Book.hist') 
-#     if not book_history : book_history = []
-
-#     if name not in book_history: # adds to history
-#         book_history.append(name)
-#         page.client_storage.set('Book.hist', book_history)
-        
-#         # Prepend new book to the list
-#         Book_sheet.list_body.controls.insert(0, new_book)
-#     else:
-#         # Update the existing book in the list
-#         index = book_history.index(name)
-#         Book_sheet.list_body.controls[index].done('d')
-#         Book_sheet.list_body.controls[index].update()
-#         print(Book_sheet.list_body.controls[index])
-#     Book_sheet.popup()
-
-#     # Ensure necessary directories exist
-#     if not os.path.exists(path):
-#         os.makedirs(os.path.join(path, 'parts'))
-#         os.makedirs(os.path.join(path, 'sub'))
-
-#     # Extract details from the book
-#     total, duration = extraction(old_path, os.path.join(path, 'parts'))
-#     # Load book image
-#     img = loader(old_path, name)
-#     print(img)
-
-#     # Store book details in client storage
-#     page.client_storage.set(
-#         f'Book.{name}',
-#         [book_path, subtitle, current, total, duration, img]
-#     )
-
-#     # Update progress on the UI
-#     if name in book_history:
-#         for item in Book_sheet.list_body.controls:
-#             if item.text_container.value == name:
-#                 item.done('f')
-#     else:
-#         new_book.done('f')
-    
-#     Book_sheet.update()
-
-def on_dialog_result(file, page, indicator=None): # needs to be async
+def on_dialog_result(file, page, indicator=None): # becove overlayed
     old_path = file
     _, tail = os.path.split(old_path)
     name = tail.split('.')[0]
@@ -106,8 +41,6 @@ def on_dialog_result(file, page, indicator=None): # needs to be async
                 new_book_index.change_indicator(1)
         except:
             print("indicator doesn't exsist")
-    # get the index for the new one
-        
 
     # Ensure necessary directories exist
     if not os.path.exists(path):
@@ -136,7 +69,6 @@ def on_dialog_result(file, page, indicator=None): # needs to be async
                 new_book_index.change_indicator(2)
         except:
             print("indicator doesn't exsist")
-    
 
 class HistoryTile(ft.Container):
     def __init__(self, _id):
@@ -220,7 +152,9 @@ class HistoryTile(ft.Container):
         self.page.client_storage.set('Book.hist', hist)
         if book:
             self.page.client_storage.remove(book)
-        shutil.rmtree(os.path.join(ROOTPATH,'Books', f'{self.book_id}'))
+        book_path = os.path.join(ROOTPATH,'Books', f'{self.book_id}')
+        if os.path.exists(book_path):
+            shutil.rmtree(book_path)
         self.parent.controls.remove(self)
         self.page.update()
 
@@ -277,18 +211,23 @@ class AddView(ft.View):
                         weight= ft.FontWeight.BOLD,
                     ),
                     ft.IconButton(
-                        ft.Icons.HISTORY, 
+                        ft.Icons.SEARCH, 
                         on_click= self.onclick
                     ),
                 ], 
                 alignment= ft.MainAxisAlignment.SPACE_BETWEEN
+            ),
+            ft.Container(
+                content=ft.Text("Manage books here, add or remove various books", text_align= ft.TextAlign.CENTER),
+                bgcolor= CONTAINER_COLOR,
+                padding= 5,
             ),
             self.empty_placeholder,
             self.main_body,
         ]
     
     def onclick(self, e):
-        self.overlays.bookprogresssheet.popup()
+        print("#")
         
     def did_mount(self):
         self.overlays = overlay(self.page)
@@ -318,56 +257,4 @@ class AddView(ft.View):
     
     def on_dialog_result(self, e: ft.FilePickerResultEvent): # needs to be async
         on_dialog_result(e.files[0].path, self.page, self.main_body)
-        # if e.files is None:
-        #     return  # Exit early if no files are selected
         
-        # page = self.page
-        # self.main_body
-
-        # old_path = e.files[0].path
-        # _, tail = os.path.split(old_path)
-        # name = tail.split('.')[0]
-
-        # path = os.path.join(ROOTPATH, 'Books', name)
-        # book_path = f'/Books/{name}'
-        # subtitle = []
-        # current = 0
-        # new_book = HistoryTile(name)
-
-        # # Retrieve and update book history
-        # book_history = page.client_storage.get('Book.hist') 
-        # if not book_history : book_history = []
-
-        # if name not in book_history: # adds to history
-        #     book_history.append(name)
-        #     page.client_storage.set('Book.hist', book_history)
-            
-        #     # Prepend new book to the list
-        #     self.main_body.controls.insert(0, new_book)
-        #     new_book_index: HistoryTile = self.main_body.controls[0]
-        #     self.update()
-        # else:
-        #     # Update the existing book in the list
-        #     index = book_history.index(name)
-        #     new_book_index: HistoryTile = self.main_body.controls[index]
-        #     new_book_index.change_indicator(1)
-        # # get the index for the new one
-            
-
-        # # Ensure necessary directories exist
-        # if not os.path.exists(path):
-        #     os.makedirs(os.path.join(path, 'parts'))
-        #     os.makedirs(os.path.join(path, 'sub'))
-
-        # # Extract details from the book
-        # total, duration = extraction(old_path, os.path.join(path, 'parts'))
-        # # Load book image
-        # img = loader(old_path, name)
-
-        # # Store book details in client storage
-        # page.client_storage.set(
-        #     f'Book.{name}',
-        #     [book_path, subtitle, current, total, duration, img]
-        # )
-
-        # new_book_index.change_indicator(0)

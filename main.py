@@ -1,6 +1,5 @@
 import flet as ft
 from Utility import *
-from user_controls import BookProgressSheet
 from view import routes
 
 # delete ffmpeg
@@ -29,18 +28,7 @@ def metadata(page: ft.Page):
 
 def add_overlays(page):
     page.overlay.append(ft.SnackBar(ft.Text("love"), duration= 1000))
-    page.overlay.append(BookProgressSheet(1000)) # remove and normall in add, and delete in add
     page.overlay.append(ft.FilePicker())
-    # page.overlay.append(
-    #     Column(
-    #         controls=[
-    #             ElevatedButton('test', on_click= lambda _: change_theme(page)
-    #         ),
-    #     ]
-    #         ,bottom= 80, 
-    #         alignment= 'end'
-    #     )
-    # )
 
 def main(page: ft.Page): # add security
     metadata(page)

@@ -492,7 +492,6 @@ class Track(ft.GestureDetector):
 class QuickNote(ft.Container):
     def __init__(self):
         super().__init__()
-        # self.listtiles = lts
         self.bgcolor = ft.Colors.SURFACE
         self.alignment = ft.alignment.bottom_center
         self.visible = False

@@ -2,7 +2,8 @@ import flet as ft
 from Utility import *
 from view import routes
 
-# delete ffmpeg
+# add last read
+# reduce the image
 
 def metadata(page: ft.Page):
     page.title = "BookReader"
@@ -29,6 +30,9 @@ def metadata(page: ft.Page):
 def add_overlays(page):
     page.overlay.append(ft.SnackBar(ft.Text("love"), duration= 1000))
     page.overlay.append(ft.FilePicker())
+    # add audio manager
+    # add download manager
+    # add popup 
 
 def main(page: ft.Page): # add security
     metadata(page)

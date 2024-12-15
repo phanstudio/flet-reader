@@ -81,4 +81,3 @@ class HomeView(ft.View):
 
         self.update()
         return super().did_mount()
-    ft.Container.animate_scale

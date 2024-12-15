@@ -1,7 +1,6 @@
 import flet as ft
 from Utility import *
 from user_controls import Navbar, readbar
-import shutil
 
 class Chapters(ft.Container):
     def __init__(self, num, tim, ids, uls, sub):
@@ -182,7 +181,7 @@ class Chapters(ft.Container):
         
         self.page.client_storage.set(f'Book.{self.ids}', info)
 
-class BookOverView(ft.View): # download all creates a loading bar
+class BookOverView(ft.View): # download all creates a loading bar, add play
     def __init__(self) -> None:
         super().__init__(
             route= "/bookover",

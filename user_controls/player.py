@@ -247,9 +247,9 @@ class AudioPlayer(ft.Column):
             onc= self.adjust_speed,
             ),
             self.buttom_button(
-            ico=ft.Icons.TIMER_OUTLINED,
-            txt= 'timer',
-            # on_click=self.play,
+            ico=ft.Icons.VOLUME_UP,
+            txt= 'mute',
+            onc=self.mute,
             ),
             self.buttom_button(
                 ico=ft.Icons.LIST_ALT,
@@ -481,15 +481,20 @@ class AudioPlayer(ft.Column):
         self.page.update()
     
     def adjust_speed(self, e: ft.ControlEvent):
-        if self.audio1.playback_rate == None or self.audio1.playback_rate == 1:
-            self.audio1.playback_rate = 2
-        elif self.audio1.playback_rate == 2:
-            self.audio1.playback_rate = 0.5
-        elif self.audio1.playback_rate == 0.5:
-            self.audio1.playback_rate = 1
+        playrate = [1, 1.2, 1.5, 0.8]
+        rate = 0 if self.audio1.playback_rate == None else playrate.index(self.audio1.playback_rate)
+        rate = (rate + 1) if rate < (len(playrate)-1) else 0
+        self.audio1.playback_rate = playrate[rate]
         spd = str(self.audio1.playback_rate)
         spd = '' if spd == 'None' or spd == '1' else (spd + 'x ')
         e.control.content.controls[1].value = spd + 'speed'
+        self.page.update()
+
+    def mute(self, e: ft.ControlEvent):
+        # self.audio1.volume = 1 - self.audio1.volume if self.audio1.volume is not None else 0
+        self.audio1.volume = 0 if self.audio1.volume in (1, None) else 1
+        e.control.content.controls[0].name = ft.Icons.VOLUME_UP if self.audio1.volume == 1 else ft.Icons.VOLUME_MUTE
+        e.control.content.controls[1].value = "mute" if self.audio1.volume == 1 else "unmute"
         self.page.update()
 
     def ff_song(self, e: ft.ControlEvent):

@@ -38,9 +38,12 @@ def on_dialog_result(file, page, indicator=None): # becove overlayed
             if indicator:
                 index = book_history.index(name)
                 new_book_index: HistoryTile = indicator.controls[index]
-                new_book_index.change_indicator(1)
+                # new_book_index.change_indicator(1)
         except:
             print("indicator doesn't exsist")
+    
+    if indicator:
+        new_book_index.change_indicator(1)
 
     # Ensure necessary directories exist
     if not os.path.exists(path):
@@ -134,6 +137,7 @@ class HistoryTile(ft.Container):
         self.update()
 
     def clear(self):
+        parent = self.parent
         dts: list = self.page.client_storage.get_keys('Book')
         dts.remove('Book.hist')
         self.page.client_storage.set('Book.hist', [])
@@ -142,8 +146,11 @@ class HistoryTile(ft.Container):
         for i in dts:
             self.page.client_storage.remove(i)
             shutil.rmtree(os.path.join(ROOTPATH,'Books', f'{i.split(".")[-1]}'))
+        parent.controls.clear()
+        parent.update_icon()
     
     def delete_book(self):
+        parent = self.parent
         dts: list = self.page.client_storage.get_keys('Book')
         book = [i for i in dts if self.book_id in i]
         book = book[0] if len(book)> 0 else None
@@ -155,10 +162,10 @@ class HistoryTile(ft.Container):
         book_path = os.path.join(ROOTPATH,'Books', f'{self.book_id}')
         if os.path.exists(book_path):
             shutil.rmtree(book_path)
-        self.parent.controls.remove(self)
-        self.page.update()
+        parent.controls.remove(self)
+        parent.update_icon()
 
-class AddView(ft.View):
+class AddView(ft.View): # add a will unmount wauning
     def __init__(self) -> None:
         super().__init__(
             route= "/add",
@@ -234,27 +241,36 @@ class AddView(ft.View):
         self.file_picker: ft.FilePicker = self.overlays.filepicker
         self.file_picker.on_result = self.on_dialog_result
         # add extras
-        
-        addfile = lambda _: self.file_picker.pick_files(
-            dialog_title= 'Book Adder', 
-            file_type= ft.FilePickerFileType.AUDIO
-        )
         past_hist:list = self.page.client_storage.get('Book.hist')
         if past_hist != None:
             for i in past_hist:
                 self.main_body.controls.append(HistoryTile(i))
-            self.floating_action_button = ft.FloatingActionButton(
-                icon= ft.Icons.ADD,
-                on_click= addfile,
-            )
-            self.empty_placeholder.visible = False # change
-        else:
-            self.add_button.on_click = addfile
-            self.main_body.visible = False # change
+        self.change_icons()
+        self.main_body.update_icon = self.change_icons
             
         self.page.update()
         return super().did_mount()
     
+    def change_icons(self):
+        self.main_body.visible = len(self.main_body.controls) > 0
+        self.empty_placeholder.visible = not self.main_body.visible
+        addfile = lambda _: self.file_picker.pick_files(
+            dialog_title= 'Book Adder', 
+            file_type= ft.FilePickerFileType.AUDIO
+        )
+        if not self.main_body.visible:
+            self.add_button.on_click = addfile
+            self.floating_action_button = None
+        else:
+            self.floating_action_button = ft.FloatingActionButton(
+                icon= ft.Icons.ADD,
+                on_click= addfile,
+            )
+            self.add_button.on_click = None
+        self.page.update()
+    
     def on_dialog_result(self, e: ft.FilePickerResultEvent): # needs to be async
-        on_dialog_result(e.files[0].path, self.page, self.main_body)
+        for file in e.files: # for now only accepts one at a time
+            if file.path:
+                on_dialog_result(file.path, self.page, self.main_body)
         

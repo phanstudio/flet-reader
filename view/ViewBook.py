@@ -514,21 +514,28 @@ class QuickNote(ft.Container):
                 ft.Column(
                     ref= self.body,
                     controls=[
-                        ft.ElevatedButton(
-                            " ",
-                            height= 5, 
-                            width= 100, 
-                            on_click= self.onclose,
-                            bgcolor= ft.Colors.with_opacity(0.3, ft.Colors.INVERSE_SURFACE)
+                        ft.Row(
+                            controls=[
+                                ft.ElevatedButton(
+                                    "Close",
+                                    height= 40, 
+                                    # width= 100, 
+                                    expand= True,
+                                    on_click= self.onclose,
+                                    # bgcolor= ft.Colors.with_opacity(0.3, ft.Colors.INVERSE_SURFACE)
+                                ),
+                            ]
                         ),
                         ft.TextField(
                             hint_text= 'Untitled Quick Note',
                             multiline= True,
-                            border= ft.InputBorder.NONE,
+                            # border= ft.InputBorder.NONE,
                             text_style= ft.TextStyle(weight= BOLD,),
                             dense= True,
-                            text_align= 'center',
                             hint_style= ft.TextStyle(weight= ft.FontWeight.NORMAL,),
+                            label= "Title",
+                            align_label_with_hint= True,
+                            text_align= ft.TextAlign.CENTER,
                         ),
                         self.text_box(),
                     ], 
@@ -570,7 +577,7 @@ class QuickNote(ft.Container):
         random_uuid = uuid.uuid4()
         create_note(self.page, random_uuid, li[0], li[1:])
 
-    def text_box(self):
+    def text_box(self): # add a system to add more options or limit the options
         r = ft.ListView([
             ft.TextField(
                 hint_text= 'add Header',

@@ -164,7 +164,6 @@ class AudioManager(ft.Audio):
             self.auto= True
 
     def update_track(self):
-        # print(self.track)
         if self.track is not None: # problem
             self.track.content.content.shapes[1].width = (
                 self.position
@@ -313,8 +312,13 @@ class AudioPlayer(ft.Column):
                 ),
                 ft.Column(
                     controls=[
-                        ft.Text('No track', size= 18, ref= self.tit,
-                                            text_align= 'center'),
+                        ft.Text(
+                            'No track', 
+                            size= 18, 
+                            ref= self.tit,
+                            text_align= 'center',
+                            max_lines= 2,
+                        ),
                         ft.Text('NaN', size= 10, ref= self.prt,
                                             text_align= 'center')   
                     ], 
@@ -591,7 +595,12 @@ class AudioPlayer(ft.Column):
         self.audio1.set_indicator = self.set_indictors
         self.audio1.nextplay = lambda : self.next("")
         self.track_canvas.find_position(self.track_canvas.stored_e)
-        self.set_play_pause(True)
+        if "audiomanager" in self.overlays._keys():
+            self.set_play_pause(
+                True if not self.audio1.get_current_position() > 0 else False
+            )
+        else:
+            self.set_play_pause(True)
     
     def _unload_track(self, audiomanager): # create a way to reload the tracks
         self.audio1 :AudioManager = audiomanager
